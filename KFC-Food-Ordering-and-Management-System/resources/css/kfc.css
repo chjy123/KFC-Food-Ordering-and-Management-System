@@ -1,0 +1,22 @@
+.hero-bg {
+    background-image: url('https://images.unsplash.com/photo-1559847844-5315695dadae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1798&q=80');
+    background-size: cover;
+    background-position: center;
+}
+.menu-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+}
+.floating-btn {
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
