@@ -3,79 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/kfc.css">
     <title>KFC - Food Ordering System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .hero-bg {
-            background-image: url('https://images.unsplash.com/photo-1559847844-5315695dadae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1798&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-        .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        .cart-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-        }
-        .floating-btn {
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-    </style>
+
 </head>
-<body class="font-sans bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-red-600 text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-utensils text-2xl"></i>
-                <a href="#" class="text-xl font-bold">KFC Ordering</a>
-            </div>
-            
-            <div class="hidden md:flex space-x-6">
-                <a href="#" class="hover:text-yellow-300 font-medium">Home</a>
-                <a href="#" class="hover:text-yellow-300">Menu</a>
-                <a href="#" class="hover:text-yellow-300">Deals</a>
-                <a href="#" class="hover:text-yellow-300">Locations</a>
-                <a href="#" class="hover:text-yellow-300">About</a>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <button class="p-2 rounded-full hover:bg-red-700">
-                        <i class="fas fa-shopping-cart text-xl"></i>
-                        <span class="cart-badge bg-yellow-400 text-red-800 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">3</span>
-                    </button>
-                </div>
-                <a href="#" class="bg-yellow-400 text-red-800 px-4 py-2 rounded-full font-bold hover:bg-yellow-300">Sign In</a>
-                <button class="md:hidden">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
+@include('partials.header')
+{{-- Hero Section --}}
+<section class="hero-bg text-white py-20 md:py-32" style="background-image: url('https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=1798&q=80');">
+    <div class="container mx-auto px-4 text-center backdrop-brightness-50 py-10">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4">Finger Lickin' Good</h1>
+        <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Order your favorite KFC meals online and skip the queue!</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#" class="bg-yellow-400 text-red-800 px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-300 transition">Order Now</a>
+            <a href="#" class="bg-white text-red-600 px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-100 transition">View Menu</a>
         </div>
-    </nav>
+    </div>
+</section>
 
-    <!-- Hero Section -->
-    <section class="hero-bg text-white py-20 md:py-32">
-        <div class="container mx-auto px-4 text-center backdrop-brightness-50 py-10">
-            <h1 class="text-4xl md:text-6xl font-bold mb-4">Finger Lickin' Good</h1>
-            <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Order your favorite KFC meals online and skip the queue!</p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="#" class="bg-yellow-400 text-red-800 px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-300 transition">Order Now</a>
-                <a href="#" class="bg-white text-red-600 px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-100 transition">View Menu</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
+   <!-- Features Section -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Why Order With Us?</h2>
@@ -279,65 +226,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white pt-12 pb-6">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">KFC Ordering</h3>
-                    <p class="mb-4">Order your favorite KFC meals online and enjoy faster service.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-white hover:text-yellow-400"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white hover:text-yellow-400"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white hover:text-yellow-400"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="hover:text-yellow-400">Home</a></li>
-                        <li><a href="#" class="hover:text-yellow-400">Menu</a></li>
-                        <li><a href="#" class="hover:text-yellow-400">Deals</a></li>
-                        <li><a href="#" class="hover:text-yellow-400">Locations</a></li>
-                        <li><a href="#" class="hover:text-yellow-400">About Us</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold mb-4">Help</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="hover:text-yellow-400">FAQs</a></li>
-                        <li><a href="#" class="hover:text-yellow-400">Contact Us</a></li>
-                        <li><a href="#" class="hover:text-yellow-400">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-yellow-400">Terms of Service</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold mb-4">Contact</h4>
-                    <ul class="space-y-2">
-                        <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
-                            <span>123 Chicken Street, Louisville, KY 40213</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-phone-alt mr-2"></i>
-                            <span>(502) 555-1234</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-envelope mr-2"></i>
-                            <span>orders@kfc.com</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="border-t border-gray-800 pt-6 text-center text-gray-400">
-                <p>&copy; 2023 KFC Ordering System. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+@include('partials.footer')
 
     <!-- Floating Order Button (Mobile) -->
     <div class="md:hidden fixed bottom-6 right-6">
