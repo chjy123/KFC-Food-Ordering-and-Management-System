@@ -23,7 +23,7 @@
                     <span class="cart-badge bg-yellow-400 text-red-800 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" data-cart-count>3</span>
                 </button>
             </div>
-            <a href="#" class="bg-yellow-400 text-red-800 px-4 py-2 rounded-full font-bold hover:bg-yellow-300">Sign In</a>
+            <a href="/signin" class="bg-yellow-400 text-red-800 px-4 py-2 rounded-full font-bold hover:bg-yellow-300">Sign In</a>
             <button class="md:hidden">
                 <i class="fas fa-bars text-2xl"></i>
             </button>
