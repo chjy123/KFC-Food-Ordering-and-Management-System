@@ -28,3 +28,8 @@ Route::middleware('auth')->group(function () {
         return view('admin'); // resources/views/admin.blade.php
     })->name('admin.page');
 });
+
+/*Menu route*/
+use App\Http\Controllers\MenuController;
+
+Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
