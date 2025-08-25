@@ -11,7 +11,6 @@ class UserController extends Controller
     /* ----- Registration ----- */
     public function showRegister()
     {
-        // your file is resources/views/registration.blade.php
         return view('registration');
     }
 
@@ -44,27 +43,31 @@ class UserController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+{
+    $credentials = $request->validate([
+        'email'    => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        $remember = (bool) $request->boolean('remember');
+    $remember = (bool) $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
+    if (Auth::attempt($credentials, $remember)) {
+        $request->session()->regenerate();
 
-            // Optional: redirect admins to dashboard
-            if (Auth::user()->isAdmin()) {
-                return redirect()->route('dashboard')->with('status', 'Welcome back, admin!');
-            }
+        $user = Auth::user();
 
-            return redirect()->intended(route('home'))->with('status', 'Signed in successfully!');
+        // if admin → admin page
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
         }
 
-        return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+        // else customer → dashboard
+        return redirect()->route('dashboard')->with('status', 'Signed in successfully!');
     }
+
+    return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+}
+
 
     /* ----- Logout ----- */
     public function logout(Request $request)
@@ -78,6 +81,6 @@ class UserController extends Controller
     /* ----- Optional protected page ----- */
     public function dashboard()
     {
-        return view('home'); // or create resources/views/dashboard.blade.php
+        return view('home'); 
     }
 }

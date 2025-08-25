@@ -14,11 +14,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [UserController::class, 'login'])->name('login.store');
 });
 
-/* Auth-only routes */
+/* Auth only */
 Route::middleware('auth')->group(function () {
-    // Optional protected page
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
 
-    // Logout must be POST
-    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+    // Admin page (only if role = admin)
+    Route::get('/admin', function () {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized'); // block non-admins
+        }
+        return view('admin'); // resources/views/admin.blade.php
+    })->name('admin.page');
 });
