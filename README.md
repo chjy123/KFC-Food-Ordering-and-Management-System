@@ -9,7 +9,11 @@ The system aims at eliminating the errors of order, speeding up the service, cen
 
 # Project Modules
 User Module 
+
 Menu and Review Management
+
 Payment Module
+
 Admin Dashboard Module
+
 Order Module
