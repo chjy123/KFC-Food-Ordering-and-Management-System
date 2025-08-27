@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    /* ----- Registration ----- */
+    /* ---------- Registration ---------- */
     public function showRegister()
     {
-        return view('registration');
+        // resources/views/User/registration.blade.php
+        return view('User.registration');
     }
 
     public function register(Request $request)
@@ -32,55 +34,88 @@ class UserController extends Controller
         ]);
 
         Auth::login($user);
-        return redirect()->route('home')->with('status', 'Registration successful. Welcome!');
+
+        // After register, go to customer dashboard
+        return redirect()->route('dashboard')->with('status', 'Registration successful. Welcome!');
     }
 
-    /* ----- Login ----- */
+    /* ---------- Login / Logout ---------- */
     public function showLogin()
     {
-        // your file is resources/views/signin.blade.php
-        return view('signin');
+        // resources/views/User/signin.blade.php
+        return view('User.signin');
     }
 
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email'    => ['required', 'email'],
-        'password' => ['required'],
-    ]);
+    {
+        $credentials = $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-    $remember = (bool) $request->boolean('remember');
+        $remember = (bool) $request->boolean('remember');
 
-    if (Auth::attempt($credentials, $remember)) {
-        $request->session()->regenerate();
+        if (Auth::attempt($credentials, $remember)) {
+            $request->session()->regenerate();
 
-        $user = Auth::user();
-
-        // if admin → admin page
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
+            $user = Auth::user();
+            if ($user->isAdmin()) {
+                return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
+            }
+            return redirect()->route('dashboard')->with('status', 'Signed in successfully!');
         }
 
-        // else customer → dashboard
-        return redirect()->route('dashboard')->with('status', 'Signed in successfully!');
+        return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
     }
 
-    return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
-}
-
-
-    /* ----- Logout ----- */
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('home')->with('status', 'You have been logged out.');
     }
 
-    /* ----- Optional protected page ----- */
+    /* ---------- Dashboard + Updates ---------- */
     public function dashboard()
     {
-        return view('home'); 
+        // resources/views/User/dashboard.blade.php
+        return view('User.dashboard');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name'    => ['required', 'string', 'max:255'],
+            'phoneNo' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $user->fill($validated)->save();
+
+        return back()->with('profile_status', 'Profile updated successfully.');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required'],
+            'password'         => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        $user = $request->user();
+
+        if (! Hash::check($request->input('current_password'), $user->password)) {
+            // send to named error bag "updatePassword"
+            return back()->withErrors(['current_password' => 'Current password is incorrect.'], 'updatePassword');
+        }
+
+        // Model cast will hash automatically
+        $user->password = $request->input('password');
+        $user->save();
+
+        return back()->with('password_status', 'Password updated successfully.');
     }
 }
