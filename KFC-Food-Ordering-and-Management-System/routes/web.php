@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MenuController;
 
-Route::get('/', fn () => view('home'))->name('home');
+/* Home uses your User/home.blade.php */
+Route::get('/', fn () => view('User.home'))->name('home');
 
 /* Guest-only routes */
 Route::middleware('guest')->group(function () {
@@ -14,22 +16,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [UserController::class, 'login'])->name('login.store');
 });
 
-/* Auth only */
+/* Auth-only routes */
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
 
-    // Admin page (only if role = admin)
+    // Admin page (only if role = admin) – placeholder text until you create a Blade
     Route::get('/admin', function () {
         if (!auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized'); // block non-admins
+            abort(403, 'Unauthorized');
         }
-        return view('admin'); // resources/views/admin.blade.php
+        return 'Admin page'; // later: return view('Admin.index');
     })->name('admin.page');
 });
 
-/*Menu route*/
-use App\Http\Controllers\MenuController;
-
+/* Menu */
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');

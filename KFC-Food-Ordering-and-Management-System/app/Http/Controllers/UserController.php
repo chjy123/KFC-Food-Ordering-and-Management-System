@@ -11,7 +11,8 @@ class UserController extends Controller
     /* ----- Registration ----- */
     public function showRegister()
     {
-        return view('registration');
+        // resources/views/User/registration.blade.php
+        return view('User.registration');
     }
 
     public function register(Request $request)
@@ -32,42 +33,41 @@ class UserController extends Controller
         ]);
 
         Auth::login($user);
-        return redirect()->route('home')->with('status', 'Registration successful. Welcome!');
+
+        // Send customers to dashboard (you said no home redirect)
+        return redirect()->route('dashboard')->with('status', 'Registration successful. Welcome!');
     }
 
     /* ----- Login ----- */
     public function showLogin()
     {
-        // your file is resources/views/signin.blade.php
-        return view('signin');
+        // resources/views/User/signin.blade.php
+        return view('User.signin');
     }
 
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email'    => ['required', 'email'],
-        'password' => ['required'],
-    ]);
+    {
+        $credentials = $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-    $remember = (bool) $request->boolean('remember');
+        $remember = (bool) $request->boolean('remember');
 
-    if (Auth::attempt($credentials, $remember)) {
-        $request->session()->regenerate();
+        if (Auth::attempt($credentials, $remember)) {
+            $request->session()->regenerate();
 
-        $user = Auth::user();
+            $user = Auth::user();
 
-        // if admin → admin page
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
+            // Admins → /admin; Customers → /dashboard
+            if ($user->isAdmin()) {
+                return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
+            }
+            return redirect()->route('dashboard')->with('status', 'Signed in successfully!');
         }
 
-        // else customer → dashboard
-        return redirect()->route('dashboard')->with('status', 'Signed in successfully!');
+        return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
     }
-
-    return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
-}
-
 
     /* ----- Logout ----- */
     public function logout(Request $request)
@@ -78,9 +78,10 @@ class UserController extends Controller
         return redirect()->route('home')->with('status', 'You have been logged out.');
     }
 
-    /* ----- Optional protected page ----- */
+    /* ----- Customer dashboard (simple) ----- */
     public function dashboard()
     {
-        return view('home'); 
+        // reuse your home UI for now (User/home.blade.php)
+        return view('User.home');
     }
 }
