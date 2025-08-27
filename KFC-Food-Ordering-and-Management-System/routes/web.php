@@ -4,10 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 
-/* Home uses your User/home.blade.php */
+//* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
 
-/* Guest-only routes */
+/* -------- Guest-only -------- */
 Route::middleware('guest')->group(function () {
     Route::get('/register', [UserController::class, 'showRegister'])->name('register.show');
     Route::post('/register', [UserController::class, 'register'])->name('register.store');
@@ -16,18 +16,22 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [UserController::class, 'login'])->name('login.store');
 });
 
-/* Auth-only routes */
+/* -------- Auth-only -------- */
 Route::middleware('auth')->group(function () {
+    // IMPORTANT: logout route (POST)
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
+    // Customer dashboard + updates
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    Route::put('/dashboard', [UserController::class, 'updateProfile'])->name('dashboard.update');
+    Route::put('/dashboard/password', [UserController::class, 'updatePassword'])->name('dashboard.password');
 
-    // Admin page (only if role = admin)
+    // Admin landing (view lives at resources/views/Admin/index.blade.php)
     Route::get('/admin', function () {
-        if (!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized');
         }
-        return view('Admin.index'); // later: return view('Admin.index');
+        return view('Admin.index');
     })->name('admin.page');
 });
 
