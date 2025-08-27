@@ -22,12 +22,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
 
-    // Admin page (only if role = admin) – placeholder text until you create a Blade
+    // Admin page (only if role = admin)
     Route::get('/admin', function () {
         if (!auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized');
         }
-        return 'Admin page'; // later: return view('Admin.index');
+        return view('Admin.index'); // later: return view('Admin.index');
     })->name('admin.page');
 });
 
