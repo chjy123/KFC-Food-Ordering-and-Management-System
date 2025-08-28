@@ -28,10 +28,10 @@
         {{-- Menu links (desktop) --}}
         <div class="hidden md:flex space-x-6">
             <a href="{{ url('/') }}" class="hover:text-yellow-300 font-medium">Home</a>
-            <a href="#" class="hover:text-yellow-300">Menu</a>
+            <a href="{{ route('menu.index') }}" class="hover:text-yellow-300">Menu</a>
             <a href="#" class="hover:text-yellow-300">Deals</a>
-            <a href="#" class="hover:text-yellow-300">Locations</a>
-            <a href="#" class="hover:text-yellow-300">About</a>
+            <a href="{{ route('kfc.locations') }}" class="hover:text-yellow-300">Locations</a>
+            <a href="{{ route('about') }}" class="hover:text-yellow-300">About</a>
         </div>
         
         {{-- Right side: cart + auth --}}

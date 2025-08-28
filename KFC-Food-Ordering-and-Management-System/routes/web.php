@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\LocationController;
 
 //* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
@@ -15,6 +16,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/signin', [UserController::class, 'showLogin'])->name('login.show');
     Route::post('/login', [UserController::class, 'login'])->name('login.store');
 });
+
+// Put this in web.php (near your auth routes)
+Route::get('/login', fn () => redirect()->route('login.show'))->name('login');
 
 /* -------- Auth-only -------- */
 Route::middleware('auth')->group(function () {
@@ -37,3 +41,21 @@ Route::middleware('auth')->group(function () {
 
 /* Menu */
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
+Route::get('/menu/{food}', [MenuController::class, 'show'])->name('menu.show'); // Food detail
+
+// Food CRUD (create/update/delete)
+Route::post('/foods', [MenuController::class, 'storeFood'])->name('foods.store');
+Route::put('/foods/{food}', [MenuController::class, 'updateFood'])->name('foods.update');
+Route::delete('/foods/{food}', [MenuController::class, 'destroyFood'])->name('foods.destroy');
+
+// Review CRUD (add/update/delete) - scoped to a Food where handy
+Route::post('/foods/{food}/reviews', [MenuController::class, 'storeReview'])->name('reviews.store');
+Route::put('/reviews/{review}', [MenuController::class, 'updateReview'])->name('reviews.update');
+Route::delete('/reviews/{review}', [MenuController::class, 'destroyReview'])->name('reviews.destroy');
+
+//Location page
+Route::get('/kfc-locations', [LocationController::class, 'index'])->name('kfc.locations');
+
+//about page
+Route::view('/about', 'user.about')->name('about');
+
