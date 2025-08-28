@@ -51,7 +51,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
               <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}" required
                      class="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
