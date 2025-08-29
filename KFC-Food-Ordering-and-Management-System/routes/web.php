@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Web\PaymentWebController;
 
 Route::get('/', fn () => view('home'))->name('home');
 
@@ -33,3 +34,25 @@ Route::middleware('auth')->group(function () {
 use App\Http\Controllers\MenuController;
 
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
+
+#author’s name： Pang Jun Meng
+/* Payment Routes */
+Route::middleware(['auth'])->group(function () {
+    // Customer checkout page (GET) and form submit (POST)
+    Route::get('/payments/checkout/{orderId}', [PaymentWebController::class, 'showCheckout'])->name('payments.checkout');
+    Route::post('/payments/checkout', [PaymentWebController::class, 'processCheckout'])->name('payments.checkout.process');
+
+    // Customer history
+    Route::get('/payments/history', [PaymentWebController::class, 'history'])->name('payments.history');
+
+    // Show success/fail pages (optional redirect targets)
+    Route::get('/payments/success/{id}', [PaymentWebController::class, 'success'])->name('payments.success');
+    Route::get('/payments/failed', [PaymentWebController::class, 'failed'])->name('payments.failed');
+});
+
+// Admin routes - ensure you protect with proper middleware/gate in production
+Route::middleware(['auth','can:refund-payments'])->group(function () {
+    Route::get('/admin/payments', [PaymentWebController::class, 'adminHistory'])->name('admin.payments');
+    Route::get('/admin/payments/{id}/refund', [PaymentWebController::class, 'showRefundForm'])->name('admin.payments.refund.form');
+    Route::post('/admin/payments/{id}/refund', [PaymentWebController::class, 'postRefund'])->name('admin.payments.refund');
+});
