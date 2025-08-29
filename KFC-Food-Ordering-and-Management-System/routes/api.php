@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Pang Jun Meng
 use App\Http\Controllers\Api\PaymentController;
 
 Route::prefix('payments')->middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
