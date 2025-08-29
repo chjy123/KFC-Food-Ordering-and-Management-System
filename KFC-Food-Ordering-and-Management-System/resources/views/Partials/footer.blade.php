@@ -14,9 +14,9 @@
         <h4 class="font-bold mb-4">Quick Links</h4>
         <ul class="space-y-2">
           <li><a href="#" class="hover:text-yellow-400">Home</a></li>
-          <li><a href="#" class="hover:text-yellow-400">Menu</a></li>
+          <li><a href="{{ route('menu.index') }}" class="hover:text-yellow-400">Menu</a></li>
           <li><a href="#" class="hover:text-yellow-400">Deals</a></li>
-          <li><a href="#" class="hover:text-yellow-400">Locations</a></li>
+          <li><a href="{{ route('kfc.locations') }}" class="hover:text-yellow-400">Locations</a></li>
           <li><a href="#" class="hover:text-yellow-400">About Us</a></li>
         </ul>
       </div>
@@ -34,11 +34,11 @@
         <ul class="space-y-2">
           <li class="flex items-start">
             <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
-            <span>123 Chicken Street, Louisville, KY 40213</span>
+            <span>Tower 1, VSquare @ PJ City Centre, Jalan Utara, 46200 Petaling Jaya, Selangor Darul Ehsan</span>
           </li>
           <li class="flex items-center">
             <i class="fas fa-phone-alt mr-2"></i>
-            <span>(502) 555-1234</span>
+            <span>+603-7948 7188.</span>
           </li>
           <li class="flex items-center">
             <i class="fas fa-envelope mr-2"></i>

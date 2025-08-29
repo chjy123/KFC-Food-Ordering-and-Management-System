@@ -11,13 +11,12 @@
 </head>
 @include('partials.header')
 {{-- Hero Section --}}
-<section class="hero-bg text-white py-20 md:py-32" style="background-image: url('https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=1798&q=80');">
+<section class="hero-bg text-white py-20 md:py-32" style="background-image: url('https://www.therakyatpost.com/wp-content/uploads/2022/02/kfc-2.jpg');">
     <div class="container mx-auto px-4 text-center backdrop-brightness-50 py-10">
         <h1 class="text-4xl md:text-6xl font-bold mb-4">Finger Lickin' Good</h1>
         <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Order your favorite KFC meals online and skip the queue!</p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#" class="bg-yellow-400 text-red-800 px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-300 transition">Order Now</a>
-            <a href="#" class="bg-white text-red-600 px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-100 transition">View Menu</a>
+            <a href="{{ route('menu.index') }}" class="bg-yellow-400 text-red-800 px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-300 transition">Order Now</a>
         </div>
     </div>
 </section>
@@ -111,7 +110,7 @@
             </div>
             
             <div class="text-center mt-10">
-                <a href="#" class="inline-block bg-red-600 text-white px-8 py-3 rounded-full font-bold hover:bg-red-700 transition">View Full Menu</a>
+                <a href="{{ route('menu.index') }}" class="inline-block bg-red-600 text-white px-8 py-3 rounded-full font-bold hover:bg-red-700 transition">View Full Menu</a>
             </div>
         </div>
     </section>

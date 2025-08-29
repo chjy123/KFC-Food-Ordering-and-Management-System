@@ -1,0 +1,24 @@
+/* Menu page custom styles */
+
+/* Ratings */
+.stars { letter-spacing: 2px; font-size: 16px; user-select: none; }
+.star.on  { color: #fbbf24; }   /* amber (yellow) */
+.star.off { color: #d1d5db; }   /* gray */
+
+/* Card hover effect */
+.menu-card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Review details */
+details.review summary { list-style: none; }
+details.review summary::-webkit-details-marker { display: none; }
+details.review[open] summary { color: #111827; } /* dark gray */
+
+/* Review items */
+.review-item { transition: background-color 0.2s ease; }
+.review-item:hover { background-color: #fefce8; } /* soft yellow highlight */
+
+/* Pagination tweak */
+nav[role="navigation"] { display: block; margin-top: 1.25rem; }
