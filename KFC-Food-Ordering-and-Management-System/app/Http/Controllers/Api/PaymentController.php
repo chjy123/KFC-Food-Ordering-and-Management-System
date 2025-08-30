@@ -69,7 +69,7 @@ class PaymentController extends Controller
         $payments = Payment::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
         return response()->json(['status' => 'success', 'payments' => $payments]);
     }
-
+/*
     public function refund(Request $request, $id)
     {
         // authorization gate assumed elsewhere
@@ -79,4 +79,5 @@ class PaymentController extends Controller
         }
         return response()->json(['status' => 'failed', 'message' => $res['message'] ?? 'Refund failed'], $res['httpStatus'] ?? 402);
     }
+*/
 }

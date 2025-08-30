@@ -53,6 +53,6 @@ Route::middleware(['auth'])->group(function () {
 // Admin routes - ensure you protect with proper middleware/gate in production
 Route::middleware(['auth','can:refund-payments'])->group(function () {
     Route::get('/admin/payments', [PaymentWebController::class, 'adminHistory'])->name('admin.payments');
-    Route::get('/admin/payments/{id}/refund', [PaymentWebController::class, 'showRefundForm'])->name('admin.payments.refund.form');
-    Route::post('/admin/payments/{id}/refund', [PaymentWebController::class, 'postRefund'])->name('admin.payments.refund');
+   // Route::get('/admin/payments/{id}/refund', [PaymentWebController::class, 'showRefundForm'])->name('admin.payments.refund.form');
+    //Route::post('/admin/payments/{id}/refund', [PaymentWebController::class, 'postRefund'])->name('admin.payments.refund');
 });

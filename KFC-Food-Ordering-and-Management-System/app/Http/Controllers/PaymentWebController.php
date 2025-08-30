@@ -1,6 +1,6 @@
 <?php
 #Author’s name： Pang Jun Meng
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -101,7 +101,7 @@ class PaymentWebController extends Controller
         $payments = Payment::with(['user','order'])->orderBy('created_at','desc')->paginate(30);
         return view('payments.admin_history', ['payments' => $payments]);
     }
-
+/*
     // Show refund form for a payment
     public function showRefundForm($id)
     {
@@ -119,4 +119,5 @@ class PaymentWebController extends Controller
         }
         return redirect()->back()->with('error', $res['message'] ?? 'Refund failed');
     }
+*/
 }
