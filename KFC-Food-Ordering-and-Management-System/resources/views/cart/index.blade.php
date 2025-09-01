@@ -28,12 +28,13 @@
                     </td>
                     <td class="p-2 font-semibold">{{ $item->food->name }}</td>
                     <td class="p-2">
-                        <form method="POST" action="{{ route('cart.update', $item->id) }}">
-                            @csrf
-                            <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" class="w-16 border rounded p-1">
-                            <button type="submit" class="ml-2 px-2 py-1 bg-blue-500 text-white rounded">Update</button>
-                        </form>
-                    </td>
+    <form method="POST" action="{{ route('cart.update', $item->id) }}">
+        @csrf
+        <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" class="w-16 border rounded p-1">
+        <button type="submit" class="ml-2 px-2 py-1 bg-blue-500 text-white rounded">Update</button>
+    </form>
+</td>
+
                     <td class="p-2">RM {{ number_format($item->unit_price, 2) }}</td>
                     <td class="p-2">RM {{ number_format($item->quantity * $item->unit_price, 2) }}</td>
                     <td class="p-2">

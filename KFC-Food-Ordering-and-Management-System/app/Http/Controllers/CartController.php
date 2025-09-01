@@ -17,29 +17,32 @@ class CartController extends Controller
     }
 
     public function add(Request $request)
-    {
-        $request->validate([
-            'food_id' => 'required|exists:foods,id',
-            'quantity' => 'required|integer|min:1'
+{
+    $request->validate([
+        'food_id' => 'required|exists:foods,id',
+        'quantity' => 'required|integer|min:1'
+    ]);
+
+    $food = Food::findOrFail($request->food_id);
+
+    $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+    $item = $cart->items()->where('food_id', $food->id)->first();
+
+    if ($item) {
+        $item->increment('quantity', $request->quantity);
+    } else {
+        $cart->items()->create([
+            'food_id'    => $food->id,
+            'quantity'   => $request->quantity,
+            'unit_price' => $food->price,
         ]);
-
-        $food = Food::findOrFail($request->food_id);
-
-        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
-        $item = $cart->items()->where('food_id', $food->id)->first();
-
-        if ($item) {
-            $item->increment('quantity', $request->quantity);
-        } else {
-            $cart->items()->create([
-                'food_id'    => $food->id,
-                'quantity'   => $request->quantity,
-                'unit_price' => $food->price,
-            ]);
-        }
-
-        return redirect()->back()->with('status', $food->name . ' added to cart!');
     }
+
+    // ✅ Flash success message
+    return redirect()->back()->with('status', $food->name . ' has been added to your cart!');
+}
+
+
 
     public function update(Request $request, CartItem $item)
     {

@@ -7,6 +7,8 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\PaymentController;
+
 
 //* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
@@ -73,6 +75,12 @@ Route::middleware('auth')->group(function () {
     // Orders
     Route::post('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/payment/{order}', [PaymentController::class, 'index'])->name('payment.index');
+Route::post('/payment/{order}', [PaymentController::class, 'process'])->name('payment.process');
+
 });
 
 
