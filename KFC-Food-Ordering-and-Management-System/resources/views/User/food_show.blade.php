@@ -18,6 +18,36 @@
         <h1 class="text-3xl font-bold text-gray-900">{{ $food->name }}</h1>
         <p class="mt-2 text-gray-600">{{ $food->description }}</p>
 
+        <!-- ✅ Order & Add to Cart Form -->
+<form method="POST" action="{{ route('orders.create') }}" class="mt-6">
+  @csrf
+  <input type="hidden" name="food_id" value="{{ $food->id }}">
+
+  <label for="quantity" class="block mb-2 font-medium">Quantity</label>
+  <input type="number" name="quantity" id="quantity" value="1" min="1"
+         class="border rounded p-2 w-24">
+
+  <div class="mt-4 flex gap-3">
+    <!-- Order Now -->
+    <button type="submit" name="action" value="order"
+            class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">
+      Order Now
+    </button>
+  </div>
+</form>
+
+<!-- ✅ Add to Cart uses CartController -->
+<form method="POST" action="{{ route('cart.add') }}" class="inline-block mt-2">
+  @csrf
+  <input type="hidden" name="food_id" value="{{ $food->id }}">
+  <input type="hidden" name="quantity" value="1">
+  <button type="submit"
+          class="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600">
+    Add to Cart
+  </button>
+</form>
+
+
         <div class="mt-4 flex items-center gap-4">
           <span class="text-red-600 text-2xl font-extrabold">RM {{ number_format($food->price, 2) }}</span>
           {{-- SYNCED stats from controller --}}
