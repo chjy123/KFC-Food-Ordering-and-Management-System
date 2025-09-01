@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -91,6 +92,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name'    => ['required', 'string', 'max:255'],
             'phoneNo' => ['nullable', 'string', 'max:30'],
+            'email'   => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
         ]);
 
         $user->fill($validated)->save();
