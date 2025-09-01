@@ -10,6 +10,7 @@ class Order extends Model
     use HasFactory;
 
 
+
     public const RECEIVED  = 'Received';    
     public const PREPARING = 'Preparing';
     public const COMPLETED = 'Completed';
@@ -41,6 +42,11 @@ class Order extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class, 'order_id');
+    }
+
+    public function orderDetails()
+    {
+        return $this->hasMany(\App\Models\OrderDetail::class, 'order_id');
     }
 
     public function setStatusAttribute($value)
