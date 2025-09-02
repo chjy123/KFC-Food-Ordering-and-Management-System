@@ -83,6 +83,7 @@ class MenuController extends Controller
         ]);
     }
 
+
     public function show(Food $food)
 {
     // Ensure category is available for the header
@@ -114,6 +115,50 @@ class MenuController extends Controller
         $myReview = $food->reviews()
                          ->where('user_id', auth()->id())
                          ->first();
+
+    public function show(Request $request, Food $food)
+    {
+        // Ensure category is available for the header
+        $food->load('category');
+        $food->loadAvg('reviews', 'rating')
+             ->loadCount('reviews');
+
+        // Paginated reviews for the list below
+        $reviews = $food->reviews()
+            ->with('user:id,name') // load reviewer name if available
+            ->latest()
+            ->paginate(5);
+
+        // Consistent stats for the header
+        $food->loadCount('reviews'); // ->reviews_count
+        $reviewCount = $food->reviews_count;
+
+        // Average (Laravel 9+ or fallback)
+        if (method_exists($food, 'loadAvg')) {
+            $food->loadAvg('reviews', 'rating'); // ->reviews_avg_rating
+            $avg = round($food->reviews_avg_rating ?? 0, 1);
+        } else {
+            $avg = round((float) $food->reviews()->avg('rating'), 1);
+        }
+
+        $categories = Category::orderBy('category_name')->get();
+
+        $myReview = null;
+        if ($request->user()) {
+        $myReview = $food->reviews()
+            ->where('user_id', $request->user()->id)
+            ->first();
+        }
+
+        return view('user.food_show', [
+            'food'        => $food,
+            'reviews'     => $reviews,
+            'avg'         => $avg,
+            'reviewCount' => $reviewCount,
+            'categories'  => $categories,
+            'myReview'    => $myReview,
+        ]);
+
     }
 
     $categories = Category::orderBy('category_name')->get();
