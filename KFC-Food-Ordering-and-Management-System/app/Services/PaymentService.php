@@ -109,7 +109,7 @@ class PaymentService
             return ['success' => false, 'message' => 'Server error', 'httpStatus' => 500];
         }
     }
-
+/*
     public function refundPayment(int $paymentId): array
     {
         $payment = Payment::find($paymentId);
@@ -132,4 +132,5 @@ class PaymentService
         }
         return ['success'=>false,'message'=>$res['message'] ?? 'Refund failed','httpStatus'=>402];
     }
+        */
 }

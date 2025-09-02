@@ -50,6 +50,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments/failed', [PaymentWebController::class, 'failed'])->name('payments.failed');
 });
 
+Route::get("stripe", [StripeController::class, "stripe"]);
+
 // Admin routes - ensure you protect with proper middleware/gate in production
 Route::middleware(['auth','can:refund-payments'])->group(function () {
     Route::get('/admin/payments', [PaymentWebController::class, 'adminHistory'])->name('admin.payments');

@@ -1,5 +1,5 @@
-@extends('layouts.app')
-<!-- author’s name： Pang Jun Meng -->
+<!--@extends('layouts.app')
+author’s name： Pang Jun Meng 
 @section('content')
 <div class="container">
     <h2>Admin - Payment Dashboard</h2>
@@ -39,3 +39,4 @@
     {{ $payments->links() }}
 </div>
 @endsection
+-->
