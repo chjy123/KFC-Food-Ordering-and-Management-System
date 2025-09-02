@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminMenuController;
@@ -12,6 +16,7 @@ use App\Http\Controllers\Admin\FoodController;
 use App\Http\Controllers\Admin\AdminReviewController; 
 use App\Http\Controllers\Admin\AdminReportController;  
 use Illuminate\Support\Facades\Auth;
+
 
 //* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
@@ -89,3 +94,25 @@ Route::get('/kfc-locations', [LocationController::class, 'index'])->name('kfc.lo
 //about page
 Route::view('/about', 'user.about')->name('about');
 
+Route::middleware('auth')->group(function () {
+    // Cart
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+    // Orders
+    Route::post('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/payment/{order}', [PaymentController::class, 'index'])->name('payment.index');
+Route::post('/payment/{order}', [PaymentController::class, 'process'])->name('payment.process');
+
+});
+
+
+Route::delete('/foods/{food}/reviews/mine', [ReviewController::class, 'destroyMine'])
+    ->name('reviews.destroy.mine');

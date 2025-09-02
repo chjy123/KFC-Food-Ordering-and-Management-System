@@ -38,12 +38,22 @@
         <div class="flex items-center space-x-4">
             
             {{-- Cart --}}
-            <div class="relative">
-                <button class="p-2 rounded-full hover:bg-red-700">
-                    <i class="fas fa-shopping-cart text-xl"></i>
-                    <span class="cart-badge bg-yellow-400 text-red-800 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" data-cart-count>3</span>
-                </button>
-            </div>
+<div class="relative">
+    <a href="{{ route('cart.index') }}" class="p-2 rounded-full hover:bg-red-700 relative">
+        <i class="fas fa-shopping-cart text-xl"></i>
+        @php
+    $cartCount = \App\Models\Cart::where('user_id', auth()->id())
+                ->withSum('items', 'quantity')
+                ->first()->items_sum_quantity ?? 0;
+@endphp
+@if($cartCount > 0)
+    <span class="absolute -top-1 -right-1 bg-yellow-400 text-red-800 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+        {{ $cartCount }}
+    </span>
+@endif
+    </a>
+</div>
+
 
             {{-- Auth aware buttons --}}
             @auth
