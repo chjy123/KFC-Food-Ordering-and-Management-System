@@ -4,6 +4,14 @@
 <div class="bg-gray-50 min-h-screen">
   <div class="container mx-auto px-4 py-12">
 
+  {{-- ✅ Success message --}}
+@if(session('status'))
+  <div class="mb-4 p-3 rounded bg-green-50 text-green-700 font-medium">
+      {{ session('status') }}
+  </div>
+@endif
+
+
     <a href="{{ route('menu.index') }}" class="text-sm text-red-600 hover:underline">&larr; Back to Menu</a>
 
     <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -17,6 +25,30 @@
       <div>
         <h1 class="text-3xl font-bold text-gray-900">{{ $food->name }}</h1>
         <p class="mt-2 text-gray-600">{{ $food->description }}</p>
+
+        <!-- ✅ Single Order & Cart Form -->
+<form method="POST" action="" id="orderCartForm" class="mt-6">
+  @csrf
+  <input type="hidden" name="food_id" value="{{ $food->id }}">
+
+  <label for="quantity" class="block mb-2 font-medium">Quantity</label>
+  <input type="number" name="quantity" id="quantity" value="1" min="1"
+         class="border rounded p-2 w-24">
+
+  <div class="mt-4 flex gap-3">
+    <!-- Order Now -->
+    <button type="submit" formaction="{{ route('orders.create') }}" name="action" value="order"
+            class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">
+      Order Now
+    </button>
+
+    <!-- Add to Cart -->
+    <button type="submit" formaction="{{ route('cart.add') }}"
+            class="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600">
+      Add to Cart
+    </button>
+  </div>
+</form>
 
         <div class="mt-4 flex items-center gap-4">
           <span class="text-red-600 text-2xl font-extrabold">RM {{ number_format($food->price, 2) }}</span>

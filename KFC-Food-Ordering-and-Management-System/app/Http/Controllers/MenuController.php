@@ -125,7 +125,9 @@ class MenuController extends Controller
             'categories'  => $categories,
             'myReview'    => $myReview,
         ]);
+
     }
+
 
     // === review handlers (one per user per food) ===
     public function storeOrUpdateMyReview(Request $request, Food $food)
