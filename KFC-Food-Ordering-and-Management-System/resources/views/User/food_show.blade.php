@@ -9,7 +9,7 @@
     <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Image / Gallery -->
       <div class="bg-white rounded-lg shadow overflow-hidden">
-        <img src="{{ $food->image_url ?: 'https://via.placeholder.com/800x500?text=Food' }}"
+        <img src="{{ $food->image_url ? asset('storage/'.$food->image_url) : 'https://via.placeholder.com/800x500?text=Food' }}"
              alt="{{ $food->name }}" class="w-full h-80 object-cover">
       </div>
 
@@ -70,16 +70,16 @@
             <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
               {{ $myReview ? 'Update Review' : 'Submit Review' }}
             </button>
-
+          </div>
+        </form>
+           {{-- DELETE MY REVIEW (DELETE) --}}
             @if($myReview)
-              <form method="POST" action="{{ route('reviews.destroy.mine', $food) }}">
+              <form method="POST" action="{{ route('reviews.destroy.mine', $food) }}" class="mb-6">
                 @csrf
                 @method('DELETE')
                 <button class="text-red-600 hover:underline">Delete my review</button>
               </form>
             @endif
-          </div>
-        </form>
       @else
         <a href="{{ route('login') }}" class="text-red-600 hover:underline">Sign in to leave a review</a>
       @endauth

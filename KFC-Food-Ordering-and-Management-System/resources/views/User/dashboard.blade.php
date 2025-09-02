@@ -8,7 +8,7 @@
       <div class="bg-white rounded-2xl shadow p-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">My Dashboard</h1>
+            <h1 class="text-2xl font-bold text-gray-900">My Profile</h1>
             <p class="text-gray-600 mt-1">View and update your account details.</p>
           </div>
           <span class="px-3 py-1 rounded-full text-xs font-semibold

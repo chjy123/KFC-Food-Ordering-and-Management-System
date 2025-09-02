@@ -60,9 +60,9 @@ class UserController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
-            if ($user->isAdmin()) {
+            if ($user && $user->role === 'admin') {
                 return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
-            }
+        }   
             return redirect()->route('dashboard')->with('status', 'Signed in successfully!');
         }
 

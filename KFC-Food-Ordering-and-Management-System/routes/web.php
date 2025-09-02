@@ -10,12 +10,13 @@ use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\CategoryController;   
 use App\Http\Controllers\Admin\FoodController;    
 use App\Http\Controllers\Admin\AdminReviewController; 
-use App\Http\Controllers\Admin\AdminReportController;    
+use App\Http\Controllers\Admin\AdminReportController;  
+use Illuminate\Support\Facades\Auth;
 
 //* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
 
-/* -------- Guest-only -------- */
+/* Guest-only*/
 Route::middleware('guest')->group(function () {
     Route::get('/register', [UserController::class, 'showRegister'])->name('register.show');
     Route::post('/register', [UserController::class, 'register'])->name('register.store');
@@ -24,10 +25,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [UserController::class, 'login'])->name('login.store');
 });
 
-// Put this in web.php (near your auth routes)
+
 Route::get('/login', fn () => redirect()->route('login.show'))->name('login');
 
-/* -------- Auth-only -------- */
+/* Auth-only */
 Route::middleware('auth')->group(function () {
     // IMPORTANT: logout route (POST)
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
@@ -37,16 +38,17 @@ Route::middleware('auth')->group(function () {
     Route::put('/dashboard', [UserController::class, 'updateProfile'])->name('dashboard.update');
     Route::put('/dashboard/password', [UserController::class, 'updatePassword'])->name('dashboard.password');
 
-    // Admin landing (view lives at resources/views/Admin/index.blade.php)
-
-    //       Route::get('/admin', function () {
-    //         if (! auth()->user()->isAdmin()) {
-    //             abort(403, 'Unauthorized');
-    //         }
-    //         return view('Admin.index');
-    //     })->name('admin.page');
-    // });
-    });
+        Route::middleware('auth')->group(function () {
+    // admin page
+    Route::get('/admin', function () {
+        $user = Auth::user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+        return app(AdminDashboardController::class)->index();
+    })->name('admin.page');
+});
+});
  Route::prefix('admin')->name('admin.')->group(function () {
     
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -77,6 +79,9 @@ Route::delete('/foods/{food}', [MenuController::class, 'destroyFood'])->name('fo
 Route::post('/foods/{food}/reviews', [MenuController::class, 'storeReview'])->name('reviews.store');
 Route::put('/reviews/{review}', [MenuController::class, 'updateReview'])->name('reviews.update');
 Route::delete('/reviews/{review}', [MenuController::class, 'destroyReview'])->name('reviews.destroy');
+Route::post('/foods/{food}/reviews', [MenuController::class, 'storeOrUpdateMyReview'])->name('reviews.store');
+Route::delete('/foods/{food}/reviews', [MenuController::class, 'destroyMyReview'])->name('reviews.destroy.mine');
+
 
 //Location page
 Route::get('/kfc-locations', [LocationController::class, 'index'])->name('kfc.locations');

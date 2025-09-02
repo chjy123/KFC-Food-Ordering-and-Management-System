@@ -43,7 +43,7 @@
                 <div class="menu-card bg-white rounded-lg shadow hover:shadow-lg transition">
                     {{-- clickable image --}}
                     <a href="{{ route('menu.show', $food) }}">
-                    <img src="{{ $food->image_url ?: 'https://via.placeholder.com/400x250?text=Food' }}"
+                    <img src="{{ $food->image_url ? asset('storage/'.$food->image_url) : 'https://via.placeholder.com/800x500?text=Food' }}"
                     alt="{{ $food->name }}" class="w-full h-48 object-cover rounded-t-lg">
                     </a>
                 <div class="p-4">
