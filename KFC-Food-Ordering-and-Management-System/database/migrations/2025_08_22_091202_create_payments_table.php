@@ -36,7 +36,7 @@ class CreatePaymentsTable extends Migration
             $table->decimal('amount', 12, 2);
             $table->string('currency', 10)->default('MYR');
             $table->string('method', 50);
-            $table->enum('status', ['Pending', 'Success', 'Failed', 'Refunded'])->default('Pending');
+            $table->enum('status', ['Pending', 'Success', 'Failed'])->default('Pending');
             $table->string('transaction_ref')->nullable();
             $table->string('idempotency_key')->nullable()->unique();
             $table->json('meta')->nullable();
