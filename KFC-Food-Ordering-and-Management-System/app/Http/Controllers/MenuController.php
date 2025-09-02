@@ -83,7 +83,7 @@ class MenuController extends Controller
         ]);
     }
 
-    public function show(Food $food)
+    public function show(Request $request, Food $food)
     {
         // Ensure category is available for the header
         $food->load('category');
@@ -110,12 +110,20 @@ class MenuController extends Controller
 
         $categories = Category::orderBy('category_name')->get();
 
+        $myReview = null;
+        if ($request->user()) {
+        $myReview = $food->reviews()
+            ->where('user_id', $request->user()->id)
+            ->first();
+        }
+
         return view('user.food_show', [
             'food'        => $food,
             'reviews'     => $reviews,
             'avg'         => $avg,
             'reviewCount' => $reviewCount,
             'categories'  => $categories,
+            'myReview'    => $myReview,
         ]);
     }
 

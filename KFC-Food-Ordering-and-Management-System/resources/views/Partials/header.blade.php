@@ -55,7 +55,7 @@
                     </button>
                 </form>
                 <a href="{{ route('dashboard') }}" class="hidden md:inline-block bg-white text-red-600 px-4 py-2 rounded-full font-bold hover:bg-gray-100">
-                    Dashboard
+                    Profile
                 </a>
             @else
                 {{-- If guest --}}
