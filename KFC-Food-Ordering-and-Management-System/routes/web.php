@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AdminReviewController;
 use App\Http\Controllers\Admin\AdminReportController;  
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Web\PaymentWebController;
+use App\Http\Controllers\StripeController;
 
 //* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
@@ -110,7 +111,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/payment/{order}', [PaymentController::class, 'index'])->name('payment.index');
 Route::post('/payment/{order}', [PaymentController::class, 'process'])->name('payment.process');
-
+});
 
 
 #author’s name： Pang Jun Meng
