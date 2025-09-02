@@ -44,7 +44,7 @@ class WalletSimHandler implements PaymentHandlerInterface
             return ['success' => false, 'message' => 'Gateway exception'];
         }
     }
-
+/*
     public function refund(string $transactionRef): array
     {
         $payload = ['transaction_ref' => $transactionRef, 'merchant_id' => env('MERCHANT_ID')];
@@ -61,4 +61,5 @@ class WalletSimHandler implements PaymentHandlerInterface
             return ['success' => false, 'message' => 'Gateway exception'];
         }
     }
+    */
 }

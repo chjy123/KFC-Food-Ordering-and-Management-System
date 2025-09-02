@@ -37,7 +37,7 @@ class UserController extends Controller
         Auth::login($user);
 
         // After register, go to customer dashboard
-        return redirect()->route('dashboard')->with('status', 'Registration successful. Welcome!');
+        return redirect()->route('home')->with('status', 'Registration successful. Welcome!');
     }
 
     /* ---------- Login / Logout ---------- */
@@ -63,7 +63,7 @@ class UserController extends Controller
             if ($user && $user->role === 'admin') {
                 return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
         }   
-            return redirect()->route('dashboard')->with('status', 'Signed in successfully!');
+            return redirect()->route('home')->with('status', 'Signed in successfully!');
         }
 
         return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
