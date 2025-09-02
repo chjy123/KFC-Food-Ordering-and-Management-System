@@ -24,7 +24,7 @@
                 @foreach($order->items as $item)
                     <tr>
                         <td class="p-2">
-                            <img src="{{ $item->food->image_url ?: 'https://via.placeholder.com/80x80?text=Food' }}"
+                            <img src="{{ $item->food->image_url ? asset('storage/'.$item->food->image_url) : 'https://via.placeholder.com/80x80?text=Food' }}"
                                  alt="{{ $item->food->name }}" class="w-16 h-16 object-cover rounded">
                         </td>
                         <td class="p-2">{{ $item->food->name }}</td>
