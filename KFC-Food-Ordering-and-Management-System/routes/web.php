@@ -112,7 +112,3 @@ Route::middleware('auth')->group(function () {
 Route::post('/payment/{order}', [PaymentController::class, 'process'])->name('payment.process');
 
 });
-
-
-Route::delete('/foods/{food}/reviews/mine', [ReviewController::class, 'destroyMine'])
-    ->name('reviews.destroy.mine');
