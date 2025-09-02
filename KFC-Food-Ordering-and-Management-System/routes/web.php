@@ -8,6 +8,13 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminMenuController;
+use App\Http\Controllers\Admin\CategoryController;   
+use App\Http\Controllers\Admin\FoodController;    
+use App\Http\Controllers\Admin\AdminReviewController; 
+use App\Http\Controllers\Admin\AdminReportController;    
 
 
 //* Home -> resources/views/User/home.blade.php */
@@ -36,14 +43,32 @@ Route::middleware('auth')->group(function () {
     Route::put('/dashboard/password', [UserController::class, 'updatePassword'])->name('dashboard.password');
 
     // Admin landing (view lives at resources/views/Admin/index.blade.php)
-    Route::get('/admin', function () {
-        if (! auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized');
-        }
-        return view('Admin.index');
-    })->name('admin.page');
-});
 
+    //       Route::get('/admin', function () {
+    //         if (! auth()->user()->isAdmin()) {
+    //             abort(403, 'Unauthorized');
+    //         }
+    //         return view('Admin.index');
+    //     })->name('admin.page');
+    // });
+    });
+ Route::prefix('admin')->name('admin.')->group(function () {
+    
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders');
+        Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+        Route::get('/menu', [AdminMenuController::class, 'index'])->name('menu');
+
+        Route::resource('foods', FoodController::class)->except(['index','show']);
+        Route::resource('categories', CategoryController::class)->except(['show']);
+
+        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews');
+
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
+        Route::get('/reports/download', [AdminReportController::class, 'download'])->name('reports.download');
+    });
 /* Menu */
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::get('/menu/{food}', [MenuController::class, 'show'])->name('menu.show'); // Food detail

@@ -1,36 +1,42 @@
 @include('Partials.header')
 
-<section class="py-14 bg-gray-50">
+<section class="py-16 bg-gray-50">
   <div class="container mx-auto px-4">
+    <div class="max-w-3xl mx-auto space-y-8">
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-      {{-- Left: User summary --}}
-      <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">My Profile</h2>
-        <div class="space-y-2 text-gray-700">
-          <div><span class="font-semibold">Name:</span> {{ auth()->user()->name }}</div>
-          <div><span class="font-semibold">Email:</span> {{ auth()->user()->email }}</div>
-          <div><span class="font-semibold">Phone:</span> {{ auth()->user()->phoneNo ?? '-' }}</div>
-          <div><span class="font-semibold">Role:</span>
-            <span class="px-2 py-1 rounded-full text-xs
-              {{ auth()->user()->isAdmin() ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }}">
-              {{ auth()->user()->role }}
-            </span>
+      {{-- Page title + role --}}
+      <div class="bg-white rounded-2xl shadow p-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">My Dashboard</h1>
+            <p class="text-gray-600 mt-1">View and update your account details.</p>
           </div>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold
+            {{ auth()->user()->isAdmin() ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }}">
+            {{ ucfirst(auth()->user()->role) }}
+          </span>
         </div>
       </div>
 
-      {{-- Middle: Edit profile --}}
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-xl font-bold mb-4 text-gray-800">Edit Profile</h3>
+      {{-- Flash alerts --}}
+      @if (session('profile_status'))
+        <div class="bg-green-50 text-green-700 border border-green-200 rounded-xl p-4">
+          {{ session('profile_status') }}
+        </div>
+      @endif
+      @if (session('password_status'))
+        <div class="bg-green-50 text-green-700 border border-green-200 rounded-xl p-4">
+          {{ session('password_status') }}
+        </div>
+      @endif
 
-        @if (session('profile_status'))
-          <div class="mb-4 p-3 rounded bg-green-50 text-green-700">{{ session('profile_status') }}</div>
-        @endif
+      {{-- Profile (view + edit) --}}
+      <div class="bg-white rounded-2xl shadow p-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Profile Information</h2>
 
-        @if ($errors->any() && !$errors->updatePassword)
-          <div class="mb-4 p-3 rounded bg-red-50 text-red-700">
+        {{-- Errors for this form (default bag) --}}
+        @if ($errors->any() && !($errors->updatePassword->any() ?? false))
+          <div class="mb-6 bg-red-50 text-red-700 border border-red-200 rounded-xl p-4">
             <ul class="list-disc list-inside">
               @foreach ($errors->all() as $e)
                 <li>{{ $e }}</li>
@@ -43,68 +49,80 @@
           @csrf
           @method('PUT')
 
-          <div>
-            <label class="block text-gray-700 font-medium mb-2">Full Name</label>
-            <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}"
-                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500" required>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+              <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}" required
+                     class="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+              <input type="text" name="phoneNo" value="{{ old('phoneNo', auth()->user()->phoneNo) }}"
+                     class="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" required
+                     class="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
           </div>
 
-          {{-- If you later allow changing email, add that field here with unique rule in controller --}}
-          <div>
-            <label class="block text-gray-700 font-medium mb-2">Phone</label>
-            <input type="text" name="phoneNo" value="{{ old('phoneNo', auth()->user()->phoneNo) }}"
-                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500">
+          <div class="pt-2">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700">
+              Save Changes
+            </button>
           </div>
-
-          <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">
-            Save Changes
-          </button>
         </form>
       </div>
 
-      {{-- Right: Change password --}}
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-xl font-bold mb-4 text-gray-800">Change Password</h3>
+      {{-- Change password --}}
+      <div class="bg-white rounded-2xl shadow p-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Change Password</h2>
 
-        @if (session('password_status'))
-          <div class="mb-4 p-3 rounded bg-green-50 text-green-700">{{ session('password_status') }}</div>
-        @endif
-
-        @if ($errors->updatePassword ?? false)
-          <div class="mb-4 p-3 rounded bg-red-50 text-red-700">
+        {{-- Errors for password form (named bag) --}}
+        @if ($errors->updatePassword->any() ?? false)
+          <div class="mb-6 bg-red-50 text-red-700 border border-red-200 rounded-xl p-4">
             <ul class="list-disc list-inside">
-              @foreach (($errors->updatePassword)->all() as $e)
+              @foreach ($errors->updatePassword->all() as $e)
                 <li>{{ $e }}</li>
               @endforeach
             </ul>
           </div>
         @endif
 
-        <form action="{{ route('dashboard.password') }}" method="POST" class="space-y-4">
+        <form action="{{ route('dashboard.password') }}" method="POST" class="space-y-5">
           @csrf
           @method('PUT')
 
-          <div>
-            <label class="block text-gray-700 font-medium mb-2">Current Password</label>
-            <input type="password" name="current_password" required
-                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+              <input type="password" name="current_password" required
+                     class="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+              <input type="password" name="password" required
+                     class="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+              <input type="password" name="password_confirmation" required
+                     class="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
           </div>
 
-          <div>
-            <label class="block text-gray-700 font-medium mb-2">New Password</label>
-            <input type="password" name="password" required
-                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500">
+          <div class="pt-2">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-900 text-white font-semibold hover:bg-black">
+              Update Password
+            </button>
           </div>
-
-          <div>
-            <label class="block text-gray-700 font-medium mb-2">Confirm New Password</label>
-            <input type="password" name="password_confirmation" required
-                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500">
-          </div>
-
-          <button type="submit" class="w-full bg-gray-800 text-white py-3 rounded-lg font-bold hover:bg-black transition">
-            Update Password
-          </button>
         </form>
       </div>
 
