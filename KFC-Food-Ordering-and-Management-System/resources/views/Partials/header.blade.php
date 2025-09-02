@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/kfc.css">
     <title>KFC - Food Ordering System</title>
 
     {{-- Tailwind & Font Awesome --}}
@@ -27,22 +28,32 @@
         {{-- Menu links (desktop) --}}
         <div class="hidden md:flex space-x-6">
             <a href="{{ url('/') }}" class="hover:text-yellow-300 font-medium">Home</a>
-            <a href="#" class="hover:text-yellow-300">Menu</a>
+            <a href="{{ route('menu.index') }}" class="hover:text-yellow-300">Menu</a>
             <a href="#" class="hover:text-yellow-300">Deals</a>
-            <a href="#" class="hover:text-yellow-300">Locations</a>
-            <a href="#" class="hover:text-yellow-300">About</a>
+            <a href="{{ route('kfc.locations') }}" class="hover:text-yellow-300">Locations</a>
+            <a href="{{ route('about') }}" class="hover:text-yellow-300">About</a>
         </div>
         
         {{-- Right side: cart + auth --}}
         <div class="flex items-center space-x-4">
             
             {{-- Cart --}}
-            <div class="relative">
-                <button class="p-2 rounded-full hover:bg-red-700">
-                    <i class="fas fa-shopping-cart text-xl"></i>
-                    <span class="cart-badge bg-yellow-400 text-red-800 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" data-cart-count>3</span>
-                </button>
-            </div>
+<div class="relative">
+    <a href="{{ route('cart.index') }}" class="p-2 rounded-full hover:bg-red-700 relative">
+        <i class="fas fa-shopping-cart text-xl"></i>
+        @php
+    $cartCount = \App\Models\Cart::where('user_id', auth()->id())
+                ->withSum('items', 'quantity')
+                ->first()->items_sum_quantity ?? 0;
+@endphp
+@if($cartCount > 0)
+    <span class="absolute -top-1 -right-1 bg-yellow-400 text-red-800 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+        {{ $cartCount }}
+    </span>
+@endif
+    </a>
+</div>
+
 
             {{-- Auth aware buttons --}}
             @auth
@@ -54,7 +65,7 @@
                     </button>
                 </form>
                 <a href="{{ route('dashboard') }}" class="hidden md:inline-block bg-white text-red-600 px-4 py-2 rounded-full font-bold hover:bg-gray-100">
-                    Dashboard
+                    Profile
                 </a>
             @else
                 {{-- If guest --}}

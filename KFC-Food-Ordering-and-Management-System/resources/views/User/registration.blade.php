@@ -1,15 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/kfc.css">
-    <title>KFC - Food Ordering System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-</head>
-@include('partials.header')
+{{-- No <html> wrapper here; header/footer handle that --}}
+@include('Partials.header')
 
 <section class="py-20 bg-gray-50">
   <div class="container mx-auto px-4">
@@ -76,8 +66,4 @@
   </div>
 </section>
 
-
-@include('partials.footer')
-
-</body>
-</html>
+@include('Partials.footer')
