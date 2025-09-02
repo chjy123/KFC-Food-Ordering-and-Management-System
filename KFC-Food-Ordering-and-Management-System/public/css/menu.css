@@ -22,3 +22,5 @@ details.review[open] summary { color: #111827; } /* dark gray */
 
 /* Pagination tweak */
 nav[role="navigation"] { display: block; margin-top: 1.25rem; }
+
+.stars label { display: inline-block; cursor: pointer; }
