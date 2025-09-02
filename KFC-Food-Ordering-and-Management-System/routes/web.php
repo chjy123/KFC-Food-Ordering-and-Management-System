@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\FoodController;
 use App\Http\Controllers\Admin\AdminReviewController; 
 use App\Http\Controllers\Admin\AdminReportController;  
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\Web\PaymentWebController;
 
 //* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
@@ -111,4 +111,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/payment/{order}', [PaymentController::class, 'index'])->name('payment.index');
 Route::post('/payment/{order}', [PaymentController::class, 'process'])->name('payment.process');
 
+
+
+#author’s name： Pang Jun Meng
+/* Payment Routes */
+Route::middleware(['auth'])->group(function () {
+    // Customer checkout page (GET) and form submit (POST)
+    Route::get('/payments/checkout/{orderId}', [PaymentWebController::class, 'showCheckout'])->name('payments.checkout');
+    Route::post('/payments/checkout', [PaymentWebController::class, 'processCheckout'])->name('payments.checkout.process');
+
+    // Customer history
+    Route::get('/payments/history', [PaymentWebController::class, 'history'])->name('payments.history');
+
+    // Show success/fail pages (optional redirect targets)
+    Route::get('/payments/success/{id}', [PaymentWebController::class, 'success'])->name('payments.success');
+    Route::get('/payments/failed', [PaymentWebController::class, 'failed'])->name('payments.failed');
+});
+
+Route::get("stripe", [StripeController::class, "stripe"]);
+
+// Admin routes - ensure you protect with proper middleware/gate in production
+Route::middleware(['auth','can:refund-payments'])->group(function () {
+    Route::get('/admin/payments', [PaymentWebController::class, 'adminHistory'])->name('admin.payments');
+   // Route::get('/admin/payments/{id}/refund', [PaymentWebController::class, 'showRefundForm'])->name('admin.payments.refund.form');
+    //Route::post('/admin/payments/{id}/refund', [PaymentWebController::class, 'postRefund'])->name('admin.payments.refund');
 });
