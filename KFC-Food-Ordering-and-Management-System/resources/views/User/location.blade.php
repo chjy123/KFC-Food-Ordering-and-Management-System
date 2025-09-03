@@ -5,6 +5,12 @@
 
 <main class="site-container">
   <h1 class="page-title">Locations</h1>
+  @php
+  $back = isset($next) && $next ? $next : route('locations.index');
+  @endphp
+  <div class="back-row" style="margin-bottom:1rem">
+    <a class="btn link" href="{{ $back }}">← Back</a>
+  </div>
   <p class="sub">Click a card to preview on the map, or search by city/state/mall.</p>
 
   <div class="toolbar">

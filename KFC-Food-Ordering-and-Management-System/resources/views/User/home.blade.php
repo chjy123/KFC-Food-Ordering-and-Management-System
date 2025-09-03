@@ -37,8 +37,8 @@
                     <div class="bg-red-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-percent text-red-600 text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Exclusive Deals</h3>
-                    <p class="text-gray-600">Get access to online-only promotions and combo deals.</p>
+                    <h3 class="text-xl font-bold mb-2">Exclusive Items</h3>
+                    <p class="text-gray-600">Get access to online-only items and combo deals.</p>
                 </div>
                 <div class="text-center p-6 rounded-lg">
                     <div class="bg-red-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
@@ -50,71 +50,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Popular Items -->
-    <section class="py-16 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Our Popular Items</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Item 1 -->
-                <div class="bg-white rounded-lg overflow-hidden shadow-md menu-card transition duration-300">
-                    <img src="https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Fried Chicken" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="font-bold text-xl mb-2">Original Recipe Chicken</h3>
-                        <p class="text-gray-600 mb-4">Our signature 11 herbs and spices recipe.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-lg">$9.99</span>
-                            <button class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Item 2 -->
-                <div class="bg-white rounded-lg overflow-hidden shadow-md menu-card transition duration-300">
-                    <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Zinger Burger" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="font-bold text-xl mb-2">Zinger Burger</h3>
-                        <p class="text-gray-600 mb-4">Spicy, crunchy chicken fillet in a soft bun.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-lg">$7.49</span>
-                            <button class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Item 3 -->
-                <div class="bg-white rounded-lg overflow-hidden shadow-md menu-card transition duration-300">
-                    <img src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Fries" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="font-bold text-xl mb-2">Crispy Fries</h3>
-                        <p class="text-gray-600 mb-4">Golden, crispy fries with just the right amount of salt.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-lg">$3.99</span>
-                            <button class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Item 4 -->
-                <div class="bg-white rounded-lg overflow-hidden shadow-md menu-card transition duration-300">
-                    <img src="https://images.unsplash.com/photo-1561758033-48d52648ae8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Coleslaw" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="font-bold text-xl mb-2">Creamy Coleslaw</h3>
-                        <p class="text-gray-600 mb-4">Fresh cabbage and carrots in our signature dressing.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-lg">$2.99</span>
-                            <button class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="text-center mt-10">
-                <a href="{{ route('menu.index') }}" class="inline-block bg-red-600 text-white px-8 py-3 rounded-full font-bold hover:bg-red-700 transition">View Full Menu</a>
-            </div>
-        </div>
-    </section>
-
     <!-- How It Works -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
@@ -203,24 +138,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Call to Action -->
-    <section class="py-16 bg-yellow-400 text-red-800">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-6">Ready to Order?</h2>
-            <p class="text-xl mb-8 max-w-2xl mx-auto">Download our app for exclusive mobile-only deals and faster ordering!</p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="#" class="bg-red-600 text-white px-8 py-3 rounded-full font-bold hover:bg-red-700 flex items-center justify-center gap-2">
-                    <i class="fab fa-apple text-2xl"></i>
-                    <span>App Store</span>
-                </a>
-                <a href="#" class="bg-red-600 text-white px-8 py-3 rounded-full font-bold hover:bg-red-700 flex items-center justify-center gap-2">
-                    <i class="fab fa-google-play text-2xl"></i>
-                    <span>Google Play</span>
-                </a>
             </div>
         </div>
     </section>
