@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -81,8 +82,14 @@ class UserController extends Controller
     /* ---------- Dashboard + Updates ---------- */
     public function dashboard()
     {
-        // resources/views/User/dashboard.blade.php
-        return view('User.dashboard');
+        // ✅ Load recent payments for the embedded table on the dashboard
+        $payments = Payment::where('user_id', Auth::id())
+            ->orderByDesc('payment_date')
+            ->limit(10) // remove this if you want all
+            ->get(['payment_id','payment_method','payment_status','payment_date','amount']);
+
+        // resources/views/User/dashboard.blade.php expects $payments
+        return view('User.dashboard', compact('payments'));
     }
 
     public function updateProfile(Request $request)
