@@ -82,11 +82,11 @@ class PaymentController extends Controller
                 'order_id'        => $orderId,
                 'payment_method'  => 'card',
                 'payment_status'  => $paid ? 'success' : 'failed',
-                'payment_dDate'   => now()->utc(),                     // store UTC
+                'payment_date'   => now()->utc(),                     // store UTC
                 'amount'          => $session->amount_total / 100.0,   // MYR
                 'transaction_ref' => is_string($session->payment_intent) ? $session->payment_intent : ($session->payment_intent->id ?? $sessionId),
-                'card_brand'      => $brand,
-                'card_last4'      => $last4,
+                'card_brand'      => $brand ?? null,
+                'card_last4'      => $last4 ?? null,
                 'idempotency_key' => $session->metadata->idempotency_key ?? null,
             ]);
         }
@@ -103,21 +103,56 @@ class PaymentController extends Controller
     {
         $orderId = (int) $request->query('order_id');
 
-        return view('payment.cancel', [
-            'orderId' => $orderId,
-            'homeUrl' => route('home') ?? url('/'),
-            'retryUrl'=> route('payment.index', $orderId),
-        ]);
+        // If we know the order and it belongs to the user, log a "failed" attempt once
+        if ($orderId) {
+            $order = \App\Models\Order::find($orderId);
+
+            if ($order && $order->user_id === auth()->id()) {
+                // Avoid duplicating a failed record if the user refreshes the cancel page repeatedly.
+                $alreadyLogged = \App\Models\Payment::where('order_id', $orderId)
+                    ->where('payment_status', 'failed')
+                    ->whereDate('payment_date', now()->toDateString())
+                    ->exists();
+
+            if (!$alreadyLogged) {
+                \App\Models\Payment::create([
+                    'user_id'        => auth()->id(),
+                    'order_id'       => $orderId,
+                    'payment_method' => 'card',
+                    'payment_status' => 'failed',      
+                    'amount'         => $order->total_amount,
+                    'payment_date'    => now(),
+                    'transaction_ref'=> null,         
+                    'card_brand'     => null,
+                    'card_last4'     => null,
+                    'idempotency_key'=> null,
+                ]);
+            }
+        }
+    }
+
+    return view('payment.cancel', [
+        'orderId' => $orderId,
+        'homeUrl' => route('home') ?? url('/'),
+        'retryUrl'=> route('payment.index', $orderId),
+    ]);
     }
 
     // Profile page -> payment history table
     public function history()
     {
-        $payments = Payment::where('user_id', auth()->id())
-            ->orderByDesc('payment_dDate')
-            ->get(['payment_id','payment_method','payment_status','payment_date','amount']);
+        $payments = \App\Models\Payment::where('user_id', auth()->id())
+            ->orderByDesc('id')     
+            ->select([
+                'id as payment_id',                  
+                'payment_method',
+                'payment_status',
+                'payment_date',                      
+                'amount',
+        ])
+        ->paginate(15);                           
 
-        return view('profile.payments', compact('payments'));
+        return view('payment.history', compact('payments'));
     }
 }
 
