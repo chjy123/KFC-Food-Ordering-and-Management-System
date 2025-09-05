@@ -17,3 +17,11 @@ Payment Module
 Admin Dashboard Module
 
 Order Module
+
+# Test Cards for Payment (Visa)
+Number	Description
+4242424242424242	Succeeds and immediately processes the payment.
+4000000000003220	Requires 3D Secure 2 authentication for a successful payment.
+4000000000009995	Always fails with a decline code of insufficient_funds.
+# Mastercard
+5555555555554444	Any 3 digits	Any future date
