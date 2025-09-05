@@ -90,7 +90,10 @@ Route::delete('/foods/{food}/reviews', [MenuController::class, 'destroyMyReview'
 
 
 //Location page
-Route::get('/kfc-locations', [LocationController::class, 'index'])->name('kfc.locations');
+Route::middleware([\App\Http\Controllers\Middleware\SanitizeNextParam::class])->group(function () {
+    Route::get('/locations', [\App\Http\Controllers\LocationController::class, 'index'])->name('kfc.locations');
+    Route::get('/locations/back', [\App\Http\Controllers\LocationController::class, 'back'])->name('kfc.locations.back');
+});
 
 //about page
 Route::view('/about', 'user.about')->name('about');
