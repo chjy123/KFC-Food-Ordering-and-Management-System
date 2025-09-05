@@ -50,9 +50,10 @@
 
     {{-- Proceed to Payment --}}
     <a href="{{ route('payment.index', $order->id) }}"
-       class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+        class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
         Proceed to Payment
     </a>
+
 </div>
 
 </div>
