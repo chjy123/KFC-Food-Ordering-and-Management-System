@@ -82,13 +82,18 @@ class UserController extends Controller
     /* ---------- Dashboard + Updates ---------- */
     public function dashboard()
     {
-        // ✅ Load recent payments for the embedded table on the dashboard
+        // Author: Pang Jun Meng
         $payments = Payment::where('user_id', Auth::id())
-            ->orderByDesc('payment_date')
-            ->limit(10) // remove this if you want all
-            ->get(['payment_id','payment_method','payment_status','payment_date','amount']);
+            ->orderByDesc('id') 
+            ->limit(10)
+            ->get([
+                'id as payment_id',      
+                'payment_method',
+                'payment_status',
+                'payment_date',            
+                'amount',
+            ]);
 
-        // resources/views/User/dashboard.blade.php expects $payments
         return view('User.dashboard', compact('payments'));
     }
 

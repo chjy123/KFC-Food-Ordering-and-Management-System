@@ -127,6 +127,7 @@
       </div>
 
       {{-- My Payments (embedded table) --}}
+      <!-- Author's Name: Pang Jun Meng -->
       <div class="bg-white rounded-2xl shadow p-8">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-bold text-gray-900">My Payments</h2>
