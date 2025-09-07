@@ -1,27 +1,110 @@
+````md
 # KFC-Food-Ordering-and-Management-System
 
-# System Description
-Presently, KFC uses paper menu, oral reception of order and hand written bill both on take away and dine in transactions. This manual process is a continuous source of incorrect orders, long service period and restrictions on visibility of the order process.
+## System Description
+KFC currently relies on paper menus, verbal ordering, and handwritten bills. This causes frequent order mistakes, long waits, and poor visibility of order status.
 
-A theoretical system which is web based would aim at substituting these manual processes with a virtual menu in which, structured in categories, is shown to the customers to navigate items, use a shopping bag, take orders, make virtual payments, and leave reviews. Meanwhile, administrators will have an opportunity to view or delete menu items, menu categories, track live orders, update their statuses, and reviews regardless of whether an option is selected by the customer or not.
+This web-based system replaces the manual flow with a digital experience:
+- Customers browse a categorized menu, add to cart, place orders, pay online, and track status.
+- Admins manage menus & categories, monitor live orders, and update statuses.
+- Payments are handled via **Stripe Checkout (card-only: Visa, Mastercard, UnionPay)**.
 
-The system aims at eliminating the errors of order, speeding up the service, centralizing the customer reviews, and providing the customers and administrators with effective and open operations.
+---
 
-# Project Modules
-User Module 
+## Project Modules
+- **User Module**
+- **Menu & Review Management**
+- **Order Module**
+- **Payment Module**
+- **Admin Dashboard Module**
 
-Menu and Review Management
+---
 
-Payment Module
+## Quick Start
 
-Admin Dashboard Module
+### 1) Requirements
+- PHP 8.2+
+- XAMPP (Apache & MySQL)
+- Composer
 
-Order Module
+### 2) Install & Configure
+```bash
+# Install dependencies
+composer install
 
-# Test Cards for Payment (Visa)
-Number	Description
-4242424242424242	Succeeds and immediately processes the payment.
-4000000000003220	Requires 3D Secure 2 authentication for a successful payment.
-4000000000009995	Always fails with a decline code of insufficient_funds.
-# Mastercard
-5555555555554444	Any 3 digits	Any future date
+# Copy env file, then set DB + Stripe keys (STRIPE_KEY / STRIPE_SECRET)
+cp .env.example .env
+php artisan key:generate
+
+# Run migrations (seed if you have seeders)
+php artisan migrate
+# php artisan migrate --seed   # optional
+````
+
+### 3) Useful Artisan Commands
+
+```bash
+# Clear everything when things feel "stale"
+php artisan optimize:clear
+
+# If you change config/routes/views frequently
+php artisan config:cache
+php artisan route:clear
+php artisan view:clear
+
+# Rebuild DB from scratch (DANGEROUS: drops all tables)
+# php artisan migrate:fresh --seed
+```
+
+### 4) Run the app
+
+```bash
+php artisan serve
+```
+
+---
+
+## Payments (Stripe Checkout)
+
+* Card rails enabled: **Visa, Mastercard, UnionPay**.
+* We store only tokenized details (brand, last4, transaction ref), **not** PAN/CVV.
+* Order amount is validated server-side from the `orders` table.
+* Idempotency keys are used to prevent duplicate charges.
+
+---
+
+## Test Cards (Stripe Sandbox)
+
+Use **any future expiry date** and **any 3-digit CVC** (Amex uses 4 digits).
+Cards below come from Stripe’s docs:
+
+* Test card list: [https://docs.stripe.com/testing?testing-method=card-numbers#cards](https://docs.stripe.com/testing?testing-method=card-numbers#cards)
+* Stripe-hosted checkout guide (test cards): [https://docs.stripe.com/payments/accept-a-payment?platform=web\&ui=stripe-hosted#test-cards](https://docs.stripe.com/payments/accept-a-payment?platform=web&ui=stripe-hosted#test-cards)
+
+### Visa
+
+| Purpose                       | Number                | Notes                          |
+| ----------------------------- | --------------------- | ------------------------------ |
+| Success                       | `4242 4242 4242 4242` | Standard success               |
+| 3D Secure required            | `4000 0000 0000 3220` | Triggers a 3DS challenge       |
+| Declined (insufficient funds) | `4000 0000 0000 9995` | Simulates `insufficient_funds` |
+
+### Mastercard
+
+| Purpose            | Number                | Notes                    |
+| ------------------ | --------------------- | ------------------------ |
+| Success            | `5555 5555 5555 4444` | Standard success         |
+| Success (2-series) | `2223 0031 2200 3222` | New Mastercard BIN range |
+| Debit (success)    | `5200 8282 8282 8210` | Mastercard debit test    |
+
+### UnionPay
+
+| Purpose                 | Number                    | Notes                    |
+| ----------------------- | ------------------------- | ------------------------ |
+| Success (credit)        | `6200 0000 0000 0005`     | UnionPay credit          |
+| Success (debit)         | `6200 0000 0000 0047`     | UnionPay debit           |
+| Success (19-digit card) | `6205 5000 0000 0000 004` | 19-digit UnionPay number |
+
+> **Note:** Always run in **test mode** with your Stripe **test** keys during development.
+> Do **not** use real card numbers while testing.
+
