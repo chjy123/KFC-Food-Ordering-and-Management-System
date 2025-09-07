@@ -15,18 +15,8 @@
         <ul class="space-y-2">
           <li><a href="#" class="hover:text-yellow-400">Home</a></li>
           <li><a href="{{ route('menu.index') }}" class="hover:text-yellow-400">Menu</a></li>
-          <li><a href="#" class="hover:text-yellow-400">Deals</a></li>
           <li><a href="{{ route('kfc.locations') }}" class="hover:text-yellow-400">Locations</a></li>
-          <li><a href="#" class="hover:text-yellow-400">About Us</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-bold mb-4">Help</h4>
-        <ul class="space-y-2">
-          <li><a href="#" class="hover:text-yellow-400">FAQs</a></li>
-          <li><a href="#" class="hover:text-yellow-400">Contact Us</a></li>
-          <li><a href="#" class="hover:text-yellow-400">Privacy Policy</a></li>
-          <li><a href="#" class="hover:text-yellow-400">Terms of Service</a></li>
+          <li><a href="{{ route('about') }}" class="hover:text-yellow-400">About Us</a></li>
         </ul>
       </div>
       <div>

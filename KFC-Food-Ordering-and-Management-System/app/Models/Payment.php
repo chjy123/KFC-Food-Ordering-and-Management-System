@@ -1,42 +1,19 @@
 <?php
-#author’s name： Pang Jun Meng
+// Author's Name: Pang Jun Meng
 namespace App\Models;
 
-#use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Payment extends Model {
-    /*use HasFactory;
-    protected $fillable = ['order_id','payment_method','payment_status','payment_date'];
-    public function order() { return $this->belongsTo(Order::class); }*/
-
+class Payment extends Model
+{
     protected $fillable = [
-        'order_id',
-        'user_id',
-        'amount',
-        'currency',
-        'method',
-        'status',
-        'transaction_ref',
-        'idempotency_key',
-        'meta'
+        'user_id','order_id',
+        'payment_method','payment_status','payment_date','amount',
+        'transaction_ref','card_brand','card_last4','idempotency_key'
     ];
 
-    protected $casts = [
-        'meta' => 'array'
-    ];
+    public function user()  { return $this->belongsTo(User::class); }
+    public function order() { return $this->belongsTo(Order::class); }
 
-    // object references (Eloquent relations)
-    public function order()
-    {
-        return $this->belongsTo(\App\Models\Order::class, 'order_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(\App\Models\User::class, 'user_id');
-    }
+    public function viewPaymentDetails(): void {}
 }
-
-
-

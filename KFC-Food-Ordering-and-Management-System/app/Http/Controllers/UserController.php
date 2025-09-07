@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -37,7 +38,7 @@ class UserController extends Controller
         Auth::login($user);
 
         // After register, go to customer dashboard
-        return redirect()->route('dashboard')->with('status', 'Registration successful. Welcome!');
+        return redirect()->route('home')->with('status', 'Registration successful. Welcome!');
     }
 
     /* ---------- Login / Logout ---------- */
@@ -63,7 +64,7 @@ class UserController extends Controller
             if ($user && $user->role === 'admin') {
                 return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
         }   
-            return redirect()->route('dashboard')->with('status', 'Signed in successfully!');
+            return redirect()->route('home')->with('status', 'Signed in successfully!');
         }
 
         return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
@@ -81,8 +82,19 @@ class UserController extends Controller
     /* ---------- Dashboard + Updates ---------- */
     public function dashboard()
     {
-        // resources/views/User/dashboard.blade.php
-        return view('User.dashboard');
+        // Author: Pang Jun Meng
+        $payments = Payment::where('user_id', Auth::id())
+            ->orderByDesc('id') 
+            ->limit(10)
+            ->get([
+                'id as payment_id',      
+                'payment_method',
+                'payment_status',
+                'payment_date',            
+                'amount',
+            ]);
+
+        return view('User.dashboard', compact('payments'));
     }
 
     public function updateProfile(Request $request)
