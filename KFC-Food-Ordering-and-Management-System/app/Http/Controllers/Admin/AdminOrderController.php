@@ -6,6 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use App\Support\Bus\CommandBus;
+use App\Domain\Orders\Commands\UpdateOrderStatusCommand;
+use App\Domain\Orders\Exceptions\OrderAlreadyCompleted;
+use App\Domain\Orders\Exceptions\PaymentNotSuccessful;
+use App\Domain\Orders\Exceptions\UnsupportedOrderStatus;
+use Illuminate\Support\Facades\Auth;
+
 
 class AdminOrderController extends Controller
 {
@@ -49,55 +56,27 @@ public function index(Request $request)
 }
 
 
-   public function updateStatus(Request $request, Order $order)
+   public function updateStatus(Request $request, CommandBus $bus, Order $order)
 {
-    // preserve current filters/pagination when redirecting
+    // keep your filters/pagination
     $qParams = $request->only('q','status','page');
 
-    // Normalize payment status; pretty keeps the original casing for messages
-    $payPretty = optional($order->payment)->payment_status ?? 'Pending';
-    $payKey    = strtolower($payPretty); // 'pending' | 'success' | 'failed' |
-
-    if ($order->status === Order::COMPLETED) {
-        return redirect()->route('admin.orders', $qParams)
-            ->with('info', "Order #{$order->id} is already Completed.");
-    }
-
-    if ($payKey !== 'success') {
-        // Tailored reason
-        $why = match ($payKey) {
-            'pending'  => 'Payment is Pending. Order has not yet been paid for.',
-            'failed'   => 'Payment Failed. The order payment was unsuccessful.',
-            default    => 'Payment not successful. You can only update when payment status is Success.',
-        };
+    try {
+        $updated = $bus->dispatch(new UpdateOrderStatusCommand(
+            orderId: $order->id,
+            actorUserId: Auth::id(),
+        ));
 
         return redirect()->route('admin.orders', $qParams)
-            ->with('error', "Order #{$order->id} cannot be updated: {$why}");
+            ->with('success', "Order #{$updated->id} updated to {$updated->status}.");
+
+    } catch (OrderAlreadyCompleted $e) {
+        return redirect()->route('admin.orders', $qParams)
+            ->with('info', $e->getMessage());
+
+    } catch (PaymentNotSuccessful|UnsupportedOrderStatus $e) {
+        return redirect()->route('admin.orders', $qParams)
+            ->with('error', $e->getMessage());
     }
-
-    
-    $now = now();
-    switch ($order->status) {
-        case Order::RECEIVED:
-            $order->status       = Order::PREPARING;
-            $order->preparing_at = $now;
-            break;
-
-        case Order::PREPARING:
-            $order->status       = Order::COMPLETED;
-            $order->completed_at = $now;
-            break;
-
-        default:
-           
-            return redirect()->route('admin.orders', $qParams)
-                ->with('error', "Order #{$order->id} has an unsupported status.");
-    }
-
-    $order->save();
-
-    return redirect()->route('admin.orders', $qParams)
-        ->with('success', "Order #{$order->id} updated to {$order->status}.");
 }
-
 }

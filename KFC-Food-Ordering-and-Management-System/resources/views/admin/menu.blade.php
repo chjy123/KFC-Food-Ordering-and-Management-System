@@ -1,9 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>Admin • Menu Items</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+
 <head>
   <meta charset="utf-8" />
   <title>Admin • Menu Items</title>
@@ -31,9 +28,30 @@
       width:160px;aspect-ratio:4/3;background:#f3f4f6;border:1px solid var(--gray-200);
       border-radius:12px;display:grid;place-items:center;color:#9ca3af;font-size:12px;
     }
+    /* Basic :target modal */
+.modal{
+  position: fixed; inset: 0;
+  display: grid; place-items: center;
+  background: rgba(17,24,39,.45);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+  z-index: 1000;
+}
+.modal-card{
+  width: min(720px, 90vw);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
+  transform: translateY(12px);
+  transition: transform .2s ease;
+}
+.modal:target{ opacity: 1; pointer-events: auto; }
+.modal:target .modal-card{ transform: none; }
+.modal-close{ text-decoration:none; }
+
   </style>
 </head>
-</head>
+
 <body>
 <div class="layout">
  <aside class="sidebar" aria-label="Admin navigation">
@@ -201,6 +219,82 @@ $src = $food->image_url ? asset('storage/'.$food->image_url) : 'https://placehol
 <div class="card"><div class="card-body">No categories yet. Add one to get started.</div></div>
 @endforelse
 
+@foreach ($categories as $c)
+  {{-- Add Food --}}
+  <div class="modal" id="addFood-{{ $c->id }}" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong>Add Food — {{ $c->category_name }}</strong>
+        <a class="modal-close" href="#">✕</a>
+      </div>
+      <form class="modal-body" method="POST" action="{{ route('admin.foods.store') }}" enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" name="category_id" value="{{ $c->id }}">
+        <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="form-row"><label>Food Name</label><input class="input" name="name" required></div>
+          <div class="form-row"><label>Price (RM)</label><input class="input" type="number" step="0.01" min="0" name="price" required></div>
+          <div class="form-row" style="grid-column:1/-1"><label>Description</label><textarea class="textarea" name="description"></textarea></div>
+          <div class="form-row" style="grid-column:1/-1"><label>Image</label><input type="file" class="file" name="image" accept="image/*"></div>
+        </div>
+        <div class="modal-actions"><a class="btn btn-ghost" href="#">Cancel</a><button class="btn btn-primary">Create Food</button></div>
+      </form>
+    </div>
+  </div>
+
+   {{-- Edit Category --}}
+  <div class="modal" id="editCategory-{{ $c->id }}" role="dialog" aria-modal="true" aria-label="Edit Category">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong>Edit Category: {{ $c->category_name }}</strong>
+        <a class="modal-close" href="#">✕</a>
+      </div>
+
+      <form class="modal-body" method="POST" action="{{ route('admin.categories.update', $c) }}">
+        @csrf
+        @method('PUT')
+
+        <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="form-row">
+            <label>Name</label>
+            <input class="input" name="category_name" value="{{ $c->category_name }}" required>
+          </div>
+          <div class="form-row">
+            <label>Description (optional)</label>
+            <input class="input" name="description" value="{{ $c->description }}">
+          </div>
+        </div>
+
+        <div class="modal-actions" style="justify-content:flex-end;margin-top:12px">
+          <a class="btn btn-ghost" href="#">Cancel</a>
+          <button class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {{-- Delete Category --}}
+  <div class="modal" id="deleteCategory-{{ $c->id }}" role="dialog" aria-modal="true" aria-label="Delete Category">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong style="color:#881337">Delete Category</strong>
+        <a class="modal-close" href="#">✕</a>
+      </div>
+
+      <form class="modal-body" method="POST" action="{{ route('admin.categories.destroy', $c) }}">
+        @csrf
+        @method('DELETE')
+
+        <p>Delete category <strong>{{ $c->category_name }}</strong>? This cannot be undone.</p>
+
+        <div class="modal-actions" style="justify-content:flex-end;margin-top:12px">
+          <a class="btn btn-ghost" href="#">Cancel</a>
+          <button class="btn btn-outline">Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+@endforeach
+
 
 </div>
 </main>
@@ -211,56 +305,102 @@ $src = $food->image_url ? asset('storage/'.$food->image_url) : 'https://placehol
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M7 7v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7M9 7V4h6v3"/><path d="M10 11v6M14 11v6"/></symbol>
 </svg>
 
-{{-- ================== Category Modals (edit/delete/add) ================== --}}
-@foreach ($allCategories as $c)
-  {{-- Edit Category --}}
-  <div class="modal" id="editCategory-{{ $c->id }}" role="dialog" aria-modal="true" aria-label="Edit Category">
-    <div class="modal-card">
-      <div class="modal-head"><strong>Edit Category: {{ $c->category_name }}</strong><a class="modal-close" href="#">✕</a></div>
-      <form class="modal-body" method="POST" action="{{ route('admin.categories.update',$c->id) }}">
-        @csrf @method('PUT')
-        <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:14px">
-          <div class="form-row"><label>Name</label><input class="input" name="category_name" value="{{ $c->category_name }}" required></div>
-          <div class="form-row"><label>Description</label><input class="input" name="description" value="{{ $c->description }}"></div>
+{{-- ================== Food Modals (edit/delete per item) ================== --}}
+@foreach ($categories as $cat)
+  @foreach ($cat->foods as $food)
+
+    {{-- Edit Food --}}
+    <div class="modal" id="editFood-{{ $food->id }}" role="dialog" aria-modal="true" aria-label="Edit Food">
+      <div class="modal-card">
+        <div class="modal-head">
+          <strong>Edit Food — {{ $food->name }}</strong>
+          <a class="modal-close" href="#">✕</a>
         </div>
-        <div class="modal-actions"><a class="btn btn-ghost" href="#">Cancel</a><button class="btn btn-primary">Save</button></div>
-      </form>
-    </div>
-  </div>
 
-  {{-- Delete Category --}}
-  <div class="modal" id="deleteCategory-{{ $c->id }}" role="dialog" aria-modal="true" aria-label="Delete Category">
-    <div class="modal-card">
-      <div class="modal-head"><strong style="color:#881337">Delete Category</strong><a class="modal-close" href="#">✕</a></div>
-      <form class="modal-body" method="POST" action="{{ route('admin.categories.destroy',$c->id) }}">
-        @csrf @method('DELETE')
-        <p>Delete category <strong>{{ $c->category_name }}</strong>? Foods in this category may block deletion if constraints exist.</p>
-        <div class="modal-actions"><a class="btn btn-ghost" href="#">Cancel</a><button class="btn btn-outline">Delete</button></div>
-      </form>
-    </div>
-  </div>
+        <form class="modal-body" method="POST"
+              action="{{ route('admin.foods.update', $food) }}"
+              enctype="multipart/form-data">
+          @csrf
+          @method('PUT')
 
-  {{-- Add Food (preselected category) --}}
-  <div class="modal" id="addFood-{{ $c->id }}" role="dialog" aria-modal="true" aria-label="Add Food">
-    <div class="modal-card">
-      <div class="modal-head"><strong>Add Food — {{ $c->category_name }}</strong><a class="modal-close" href="#">✕</a></div>
-      <form class="modal-body" method="POST" action="{{ route('admin.foods.store') }}" enctype="multipart/form-data">
-        @csrf
-        <div style="display:grid; grid-template-columns:160px 1fr; gap:14px; align-items:start" class="uploader">
-          <div class="thumb" style="width:160px; aspect-ratio:4/3; background:#f3f4f6; border:1px solid var(--g200); border-radius:12px; display:grid; place-items:center; color:#9ca3af; font-size:12px">No image</div>
-          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:14px">
-            <input type="hidden" name="category_id" value="{{ $c->id }}">
-            <div class="form-row"><label>Food Name</label><input class="input" name="name" required></div>
-            <div class="form-row"><label>Price (RM)</label><input class="input" type="number" step="0.01" min="0" name="price" required></div>
-            <div class="form-row" style="grid-column:1/-1"><label>Description</label><textarea class="textarea" name="description"></textarea></div>
-            <div class="form-row" style="grid-column:1/-1"><label>Image</label><input type="file" class="file" name="image" accept="image/*"></div>
+          <div class="uploader" style="display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:start">
+            <div class="thumb">
+              @php
+                $src = $food->image_url ? asset('storage/'.$food->image_url) : 'https://placehold.co/800x600?text=No+Image';
+              @endphp
+              <img src="{{ $src }}" alt="{{ $food->name }}" style="width:100%;height:100%;object-fit:cover;border-radius:12px"/>
+            </div>
+
+            <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="form-row">
+                <label>Food Name</label>
+                <input class="input" name="name" value="{{ $food->name }}" required>
+              </div>
+
+              <div class="form-row">
+                <label>Price (RM)</label>
+                <input class="input" type="number" step="0.01" min="0" name="price" value="{{ $food->price }}" required>
+              </div>
+
+              <div class="form-row">
+                <label>Category</label>
+                <select class="select" name="category_id" required>
+                  @foreach($allCategories as $c)
+                    <option value="{{ $c->id }}" @selected($c->id == $food->category_id)>{{ $c->category_name }}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              <div class="form-row" style="grid-column:1/-1">
+                <label>Description</label>
+                <textarea class="textarea" name="description">{{ $food->description }}</textarea>
+              </div>
+
+              <div class="form-row" style="grid-column:1/-1">
+                <label>Replace Image</label>
+                <input type="file" class="file" name="image" accept="image/*">
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="modal-actions"><a class="btn btn-ghost" href="#">Cancel</a><button class="btn btn-primary">Create Food</button></div>
-      </form>
+
+          <div class="modal-actions">
+            <a class="btn btn-ghost" href="#">Cancel</a>
+            <button class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
+
+    {{-- Delete Food (HARD delete) --}}
+    <div class="modal" id="deleteFood-{{ $food->id }}" role="dialog" aria-modal="true" aria-label="Delete Food">
+      <div class="modal-card">
+        <div class="modal-head">
+          <strong style="color:#881337">Delete Food</strong>
+          <a class="modal-close" href="#">✕</a>
+        </div>
+
+        <form class="modal-body" method="POST" action="{{ route('admin.foods.destroy', $food) }}">
+          @csrf
+          @method('DELETE')
+
+          {{-- Optional: preserve filters/pagination after redirect --}}
+          <input type="hidden" name="category" value="{{ request('category') }}">
+          <input type="hidden" name="q"        value="{{ request('q') }}">
+          <input type="hidden" name="page"     value="{{ request('page') }}">
+
+          <p>Delete <strong>{{ $food->name }}</strong>? This cannot be undone.</p>
+
+          <div class="modal-actions">
+            <a class="btn btn-ghost" href="#">Cancel</a>
+            <button class="btn btn-outline">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  @endforeach
 @endforeach
+
 
 
 </body>

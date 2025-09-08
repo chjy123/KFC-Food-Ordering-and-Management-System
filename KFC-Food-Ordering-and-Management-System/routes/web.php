@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('categories', CategoryController::class)->except(['show']);
 
         Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews');
+       Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
 
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
         Route::get('/reports/download', [AdminReportController::class, 'download'])->name('reports.download');
