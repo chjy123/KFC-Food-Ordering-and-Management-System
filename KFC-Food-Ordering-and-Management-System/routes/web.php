@@ -112,26 +112,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/payment/{order}', [PaymentController::class, 'index'])->name('payment.index');
-Route::post('/payment/{order}', [PaymentController::class, 'process'])->name('payment.process');
-});
-
-
 #author’s name： Pang Jun Meng
 Route::middleware('auth')->group(function () {
-    // 1) STATIC routes FIRST
+    // Static routes FIRST
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/payment/cancel',  [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-    // 2) Then the dynamic routes, with numeric constraint
-    Route::get('/payment/{order}', [PaymentController::class, 'index'])
-        ->whereNumber('order')->name('payment.index');
+    // Create Stripe Checkout session and redirect (GET)
+    // This uses your PaymentController@checkout (Strategy → PaymentService)
+    Route::get('/payment/{order}', [PaymentController::class, 'checkout'])
+        ->whereNumber('order')
+        ->name('payment.index');
 
-    Route::post('/payment/{order}/checkout', [PaymentController::class, 'checkout'])
-        ->whereNumber('order')->name('payment.checkout');
-
-    // History (profile)
+    // Customer payment history (profile)
     Route::get('/dashboard/payments', [PaymentController::class, 'history'])->name('payments.history');
 });
 

@@ -6,9 +6,12 @@ use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Services\PaymentService; 
 
 class PaymentController extends Controller
 {
+    public function __construct(private PaymentService $payments) {}
+
     public function index(Order $order)
     {
         // Server-side re-validation (amount/ownership) before showing the pay button
@@ -21,38 +24,16 @@ class PaymentController extends Controller
     {
         abort_unless($order->user_id === auth()->id(), 403);
 
-        // Re-validate amount from authoritative order
-        $amount = $order->total_amount; // MYR, 2dp in your DB
+        $context = [
+            'method'      => 'card', // Visa/Mastercard/UnionPay via Stripe card rails
+            'success_url' => route('payment.success') . '?session_id={CHECKOUT_SESSION_ID}&order_id=' . $order->id,
+            'cancel_url'  => route('payment.cancel')  . '?order_id=' . $order->id,
+        ];
 
-        // Generate idempotency key to avoid duplicates (save on success later)
-        $idemp = (string) Str::uuid();
+        $result = $this->payments->processPayment($order, $request->user(), $context);
 
-        // Create Stripe Checkout Session
-        $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+        return redirect()->away($result['redirect_url']);
 
-        $session = $stripe->checkout->sessions->create([
-            'mode' => 'payment',
-            'payment_method_types' => ['card'],     // Visa/Mastercard only
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'myr',
-                    'product_data' => ['name' => "KFC Order #{$order->id}"],
-                    // Stripe expects integer cents:
-                    'unit_amount' => (int) round($amount * 100),
-                ],
-                'quantity' => 1,
-            ]],
-            'success_url' => route('payment.success').'?session_id={CHECKOUT_SESSION_ID}&order_id='.$order->id,
-            'cancel_url'  => route('payment.cancel').'?order_id='.$order->id,
-            'metadata' => [
-                'order_id' => $order->id,
-                'user_id'  => auth()->id(),
-                'idempotency_key' => $idemp,
-            ],
-        ]);
-
-        // Redirect user to Stripe-hosted page
-        return redirect()->away($session->url);
     }
 
     public function success(Request $request)
@@ -121,7 +102,7 @@ class PaymentController extends Controller
                     'payment_method' => 'card',
                     'payment_status' => 'failed',      
                     'amount'         => $order->total_amount,
-                    'payment_date'    => now(),
+                    'payment_date'    => now()->utc(),
                     'transaction_ref'=> null,         
                     'card_brand'     => null,
                     'card_last4'     => null,
