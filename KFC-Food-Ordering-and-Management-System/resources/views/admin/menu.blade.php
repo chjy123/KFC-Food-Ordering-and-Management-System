@@ -49,6 +49,16 @@
           <a class="nav-link" href="{{ route('admin.reports') }}">Reports</a>
       </nav>
 
+      
+      <form method="POST" action="{{ route('logout') }}" style="margin-top:auto">
+      @csrf
+      <button type="submit" class="btn btn-ghost" style="width:100%;justify-content:center">
+        <span>Log out</span>
+      </button>
+      <div class="muted-tiny" style="text-align:center;margin-top:6px;">
+        Signed in as <strong>{{ auth()->user()->name ?? 'Admin' }}</strong>
+      </div>
+    </form>
     </aside>
 
 

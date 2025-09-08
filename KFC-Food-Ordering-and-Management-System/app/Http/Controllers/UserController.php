@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -81,8 +82,19 @@ class UserController extends Controller
     /* ---------- Dashboard + Updates ---------- */
     public function dashboard()
     {
-        // resources/views/User/dashboard.blade.php
-        return view('User.dashboard');
+        // Author: Pang Jun Meng
+        $payments = Payment::where('user_id', Auth::id())
+            ->orderByDesc('id') 
+            ->limit(10)
+            ->get([
+                'id as payment_id',      
+                'payment_method',
+                'payment_status',
+                'payment_date',            
+                'amount',
+            ]);
+
+        return view('User.dashboard', compact('payments'));
     }
 
     public function updateProfile(Request $request)

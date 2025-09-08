@@ -126,6 +126,49 @@
         </form>
       </div>
 
+      {{-- My Payments (embedded table) --}}
+      <!-- Author's Name: Pang Jun Meng -->
+      <div class="bg-white rounded-2xl shadow p-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-gray-900">My Payments</h2>
+          @if(Route::has('payments.history'))
+            <a href="{{ route('payments.history') }}"
+               class="text-sm text-red-600 hover:underline">Open full page</a>
+          @endif
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="p-2">Payment ID</th>
+                <th class="p-2">Method</th>
+                <th class="p-2">Status</th>
+                <th class="p-2">Date/Time</th>
+                <th class="p-2">Amount (RM)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse(($payments ?? collect()) as $p)
+                <tr>
+                  <td class="p-2">{{ $p->payment_id }}</td>
+                  <td class="p-2 capitalize">{{ $p->payment_method }}</td>
+                  <td class="p-2 capitalize">{{ $p->payment_status }}</td>
+                  <td class="p-2">
+                    {{ \Carbon\Carbon::parse($p->payment_date)->timezone('Asia/Kuala_Lumpur')->format('Y-m-d H:i') }}
+                  </td>
+                  <td class="p-2">RM {{ number_format($p->amount, 2) }}</td>
+                </tr>
+              @empty
+                <tr>
+                  <td class="p-4 text-center text-gray-600" colspan="5">No payments yet.</td>
+                </tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>

@@ -111,32 +111,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/payment/{order}', [PaymentController::class, 'index'])->name('payment.index');
-Route::post('/payment/{order}', [PaymentController::class, 'process'])->name('payment.process');
-});
-
-
 #author’s name： Pang Jun Meng
-/* Payment Routes */
-Route::middleware(['auth'])->group(function () {
-    // Customer checkout page (GET) and form submit (POST)
-    Route::get('/payments/checkout/{orderId}', [PaymentWebController::class, 'showCheckout'])->name('payments.checkout');
-    Route::post('/payments/checkout', [PaymentWebController::class, 'processCheckout'])->name('payments.checkout.process');
+Route::middleware('auth')->group(function () {
+    // Static routes FIRST
+    Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+    Route::get('/payment/cancel',  [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-    // Customer history
-    Route::get('/payments/history', [PaymentWebController::class, 'history'])->name('payments.history');
+    // Create Stripe Checkout session and redirect (GET)
+    // This uses your PaymentController@checkout (Strategy → PaymentService)
+    Route::get('/payment/{order}', [PaymentController::class, 'checkout'])
+        ->whereNumber('order')
+        ->name('payment.index');
 
-    // Show success/fail pages (optional redirect targets)
-    Route::get('/payments/success/{id}', [PaymentWebController::class, 'success'])->name('payments.success');
-    Route::get('/payments/failed', [PaymentWebController::class, 'failed'])->name('payments.failed');
+    // Customer payment history (profile)
+    Route::get('/dashboard/payments', [PaymentController::class, 'history'])->name('payments.history');
 });
 
-Route::get("stripe", [StripeController::class, "stripe"]);
-
-// Admin routes - ensure you protect with proper middleware/gate in production
-Route::middleware(['auth','can:refund-payments'])->group(function () {
-    Route::get('/admin/payments', [PaymentWebController::class, 'adminHistory'])->name('admin.payments');
-   // Route::get('/admin/payments/{id}/refund', [PaymentWebController::class, 'showRefundForm'])->name('admin.payments.refund.form');
-    //Route::post('/admin/payments/{id}/refund', [PaymentWebController::class, 'postRefund'])->name('admin.payments.refund');
-});
