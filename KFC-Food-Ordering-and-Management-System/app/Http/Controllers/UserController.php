@@ -96,17 +96,23 @@ class UserController extends Controller
     /* ---------- Dashboard + Updates ---------- */
     public function dashboard()
     {
-        $localPayments = \App\Models\Payment::where('user_id', auth()->id())
+        $localPayments = Payment::where('user_id', auth()->id())
             ->latest('id')
             ->limit(10)
-            ->get();
+            ->get([
+                'id as payment_id',
+                'payment_method',
+                'payment_status',
+                'payment_date',
+                'amount',
+            ]);
 
-        $remotePayments = $this->fetchPaymentsFromService(auth()->id());
 
         return view('User.dashboard', [
-            'payments' => $localPayments, // or merge with $remotePayments
+            'payments' => $localPayments,
+            // 'remotePayments' => $remotePayments ?? [],
         ]);
-}
+    }
 
     public function updateProfile(Request $request)
     {
