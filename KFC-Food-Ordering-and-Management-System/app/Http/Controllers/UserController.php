@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Services\Auth\UserServiceFactory;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -95,20 +96,17 @@ class UserController extends Controller
     /* ---------- Dashboard + Updates ---------- */
     public function dashboard()
     {
-        // Author: Pang Jun Meng
-        $payments = Payment::where('user_id', Auth::id())
-            ->orderByDesc('id') 
+        $localPayments = \App\Models\Payment::where('user_id', auth()->id())
+            ->latest('id')
             ->limit(10)
-            ->get([
-                'id as payment_id',      
-                'payment_method',
-                'payment_status',
-                'payment_date',            
-                'amount',
-            ]);
+            ->get();
 
-        return view('User.dashboard', compact('payments'));
-    }
+        $remotePayments = $this->fetchPaymentsFromService(auth()->id());
+
+        return view('User.dashboard', [
+            'payments' => $localPayments, // or merge with $remotePayments
+        ]);
+}
 
     public function updateProfile(Request $request)
     {
@@ -144,5 +142,16 @@ class UserController extends Controller
         $user->save();
 
         return back()->with('password_status', 'Password updated successfully.');
+    }
+
+    private function fetchPaymentsFromService($userId): array
+    {
+        $resp = Http::acceptJson()->get("http://127.0.0.1:8001/api/v1/payments/user/{$userId}");
+
+        if ($resp->failed()) {
+            return [];
+        }
+
+        return $resp->json('data', []);
     }
 }
