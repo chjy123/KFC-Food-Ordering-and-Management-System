@@ -48,11 +48,15 @@
         Continue Shopping
     </a>
 
-    {{-- Proceed to Payment --}}
-    <a href="{{ route('payment.index', $order->id) }}"
-        class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+    <form action="{{ route('cart.deleteCart') }}" method="POST">
+    @csrf
+    <input type="hidden" name="order_id" value="{{ $order->id }}">
+    <button type="submit" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
         Proceed to Payment
-    </a>
+    </button>
+</form>
+
+
 
 </div>
 

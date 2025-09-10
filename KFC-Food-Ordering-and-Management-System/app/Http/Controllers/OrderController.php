@@ -24,7 +24,7 @@ class OrderController extends Controller
 
         $order = Order::create([
             'user_id' => Auth::id(),
-            'status' => 'Pending',
+            'status' => 'Received',
             'total_amount' => 0
         ]);
 
@@ -51,7 +51,7 @@ class OrderController extends Controller
 
         $order = Order::create([
             'user_id' => Auth::id(),
-            'status' => 'Pending',
+            'status' => 'Received',
             'total_amount' => 0
         ]);
 
