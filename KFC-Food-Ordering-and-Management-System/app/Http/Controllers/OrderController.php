@@ -14,7 +14,6 @@ class OrderController extends Controller
     public function create(Request $request)
 {
     if ($request->action === 'order') {
-        // ✅ Order Now from food_show
         $request->validate([
             'food_id' => 'required|exists:foods,id',
             'quantity' => 'required|integer|min:1'
@@ -42,7 +41,6 @@ class OrderController extends Controller
     }
 
     if ($request->action === 'checkout') {
-        // ✅ Checkout from Cart
         $cart = Cart::with('items.food')->where('user_id', Auth::id())->first();
 
         if (!$cart || $cart->items->isEmpty()) {
@@ -66,7 +64,6 @@ class OrderController extends Controller
         $order->total_amount = $order->items->sum(fn($i) => $i->quantity * $i->unit_price);
         $order->save();
 
-        // 🚫 Do not delete cart yet — only delete on payment
         return redirect()->route('orders.show', $order->id)
                          ->with('status', 'Checkout successful!');
     }
@@ -77,4 +74,15 @@ class OrderController extends Controller
         $order->load('items.food');
         return view('orders.show', compact('order'));
     }
+
+    public function continueShopping(Order $order)
+{
+    $order->items()->delete();
+
+    $order->delete();
+
+    return redirect()->route('menu.index')
+                     ->with('info', 'Order cancelled. You can continue shopping.');
+}
+
 }

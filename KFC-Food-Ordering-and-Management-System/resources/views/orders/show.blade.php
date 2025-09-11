@@ -42,11 +42,15 @@
     </div>
 
     <div class="mt-6 flex justify-end">
-    {{-- Continue shopping keeps cart --}}
-    <a href="{{ route('menu.index') }}"
-       class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 mr-3">
+    <form action="{{ route('orders.continueShopping', $order->id) }}" method="POST">
+    @csrf
+    @method('DELETE')
+    <button type="submit" 
+        class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 mr-3">
         Continue Shopping
-    </a>
+    </button>
+</form>
+
 
     <form action="{{ route('cart.deleteCart') }}" method="POST">
     @csrf

@@ -107,14 +107,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
 
     Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
-Route::post('/cart/proceed-to-payment', [CartController::class, 'proceedToPayment'])->name('cart.proceedToPayment');
-Route::get('/cart/continue-shopping', [CartController::class, 'continueShopping'])->name('cart.continueShopping');
+    Route::post('/cart/proceed-to-payment', [CartController::class, 'proceedToPayment'])->name('cart.proceedToPayment');
+    Route::get('/cart/continue-shopping', [CartController::class, 'continueShopping'])->name('cart.continueShopping');
 
-Route::post('/cart/delete', [CartController::class, 'deleteCart'])->name('cart.deleteCart');
+    Route::post('/cart/delete', [CartController::class, 'deleteCart'])->name('cart.deleteCart');
 
     // Orders
     Route::post('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::delete('/orders/{order}/continue-shopping', [OrderController::class, 'continueShopping'])
+    ->name('orders.continueShopping');
+
 });
 
 #author’s name： Pang Jun Meng
