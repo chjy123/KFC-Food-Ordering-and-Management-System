@@ -63,52 +63,41 @@ class CartController extends Controller
         return redirect()->back()->with('status', 'Cart cleared!');
     }
 
-    // ✅ New: Show Checkout Page (cart remains intact here)
     public function checkout()
     {
         $cart = Cart::with('items.food')->where('user_id', Auth::id())->first();
         return view('cart.checkout', compact('cart'));
     }
 
-    // ✅ New: Proceed to Payment (cart items will be deleted)
     public function proceedToPayment()
     {
         $cart = Cart::where('user_id', Auth::id())->first();
 
         if ($cart) {
-            $cart->items()->delete();  // Delete cart items after proceeding to payment
+            $cart->delete(); // Observer will delete items
         }
 
-        // You may redirect to a payment gateway or confirmation page
         return redirect()->route('payment.page')->with('success', 'Cart submitted. Proceeding to payment.');
     }
 
-    // ✅ New: Continue Shopping (cart is untouched)
     public function continueShopping()
     {
         return redirect()->route('products.index')->with('info', 'You can continue shopping.');
     }
 
     public function deleteCart(Request $request)
-{
-    $cart = Cart::where('user_id', Auth::id())->first();
+    {
+        $cart = Cart::where('user_id', Auth::id())->first();
 
-    if ($cart) {
-        // Delete cart items first
-        $cart->items()->delete();
+        if ($cart) {
+            $cart->delete(); // Observer handles items deletion
+        }
 
-        // Delete the cart itself
-        $cart->delete();
+        if ($request->has('order_id')) {
+            return redirect()->route('payment.index', $request->order_id)
+                             ->with('success', 'Cart deleted. Proceeding to payment.');
+        }
+
+        return redirect()->back()->with('status', 'Cart cleared and deleted!');
     }
-
-    // If order_id exists → redirect to payment
-    if ($request->has('order_id')) {
-        return redirect()->route('payment.index', $request->order_id)
-                         ->with('success', 'Cart deleted. Proceeding to payment.');
-    }
-
-    // Otherwise just clear and go back
-    return redirect()->back()->with('status', 'Cart cleared and deleted from database!');
-}
-
 }
