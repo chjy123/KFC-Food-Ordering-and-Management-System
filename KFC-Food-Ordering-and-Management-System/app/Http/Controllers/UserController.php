@@ -21,36 +21,39 @@ class UserController extends Controller
     }
 
     public function register(Request $request, UserServiceFactory $factory)
-{
-    // Normalize inputs a bit
-    $request->merge([
-        'email' => strtolower(trim($request->input('email', ''))),
-        'name'  => trim($request->input('name', '')),
-        'phoneNo' => trim((string) $request->input('phoneNo', '')),
-    ]);
+    {
+        // Normalize inputs a bit
+        $request->merge([
+            'email' => strtolower(trim($request->input('email', ''))),
+            'name'  => trim($request->input('name', '')),
+            'phoneNo' => trim((string) $request->input('phoneNo', '')),
+        ]);
 
-    $validated = $request->validate([
-        'name'     => ['required','string','max:255'],
-        'email'    => ['required','email','max:255','unique:users,email'],
-        'password' => ['required','confirmed','min:8'],
-        'phoneNo'  => ['nullable','string','max:30'],
-        // Optional: allow role in form, but we will lock it down below
-        'role'     => ['nullable','in:admin,customer'],
-    ]);
+        $validated = $request->validate([
+            'name'     => ['required','string','max:255'],
+            'email'    => ['required','email','max:255','unique:users,email'],
+            'password' => ['required','confirmed','min:8'],
+            'phoneNo'  => ['nullable','string','max:30'],
+            'role'     => ['nullable','in:admin,customer'],
+        ]);
 
-    // 🔒 Block public admin signups (uncomment next line to allow invite-only later)
-    $validated['role'] = 'customer';
+        // 🔒 Block public admin signups
+        $validated['role'] = 'customer';
 
-    $svc  = $factory->forRole($validated['role']);
-    $user = $svc->register($validated);
+        $svc  = $factory->forRole($validated['role']);
+        $user = $svc->register($validated);
 
-    auth()->login($user);
-    $request->session()->regenerate();
+        auth()->login($user);
 
-    return $user->isAdmin()
-        ? redirect()->route('admin.page')->with('status', 'Admin account created. Welcome!')
-        : redirect()->route('home')->with('status', 'Registration successful. Welcome!');
-}
+        // 🔑 Regenerate + bind session
+        $request->session()->regenerate();
+        session(['ip_address' => $request->ip()]);
+        session(['user_agent' => substr($request->userAgent(), 0, 120)]);
+
+        return $user->isAdmin()
+            ? redirect()->route('admin.page')->with('status', 'Admin account created. Welcome!')
+            : redirect()->route('home')->with('status', 'Registration successful. Welcome!');
+    }
 
     /* ---------- Login / Logout ---------- */
     public function showLogin()
@@ -59,30 +62,34 @@ class UserController extends Controller
         return view('User.signin');
     }
 
-   public function login(Request $request, UserServiceFactory $factory)
-{
-    // Normalize email
-    $request->merge([
-        'email' => strtolower(trim($request->input('email', ''))),
-    ]);
+    public function login(Request $request, UserServiceFactory $factory)
+    {
+        // Normalize email
+        $request->merge([
+            'email' => strtolower(trim($request->input('email', ''))),
+        ]);
 
-    $request->validate([
-        'email'    => ['required','email'],
-        'password' => ['required'],
-        'remember' => ['sometimes','boolean'],
-    ]);
+        $request->validate([
+            'email'    => ['required','email'],
+            'password' => ['required'],
+            'remember' => ['sometimes','boolean'],
+        ]);
 
-    // Look up user to route to correct role service (default to customer if not found)
-    $role = optional(User::where('email', $request->email)->first())->role ?? 'customer';
-    $svc  = $factory->forRole($role);
+        // Look up user
+        $role = optional(User::where('email', $request->email)->first())->role ?? 'customer';
+        $svc  = $factory->forRole($role);
 
-    // Service will handle Auth::attempt and session regeneration
-    $svc->login($request);
+        // Service will handle Auth::attempt and session regeneration
+        $svc->login($request);
 
-    return auth()->user()->isAdmin()
-        ? redirect()->route('admin.page')->with('status', 'Welcome back, admin!')
-        : redirect()->route('home')->with('status', 'Signed in successfully!');
-}
+        // 🔑 Bind session to IP + UA
+        session(['ip_address' => $request->ip()]);
+        session(['user_agent' => substr($request->userAgent(), 0, 120)]);
+
+        return auth()->user()->isAdmin()
+            ? redirect()->route('admin.page')->with('status', 'Welcome back, admin!')
+            : redirect()->route('home')->with('status', 'Signed in successfully!');
+    }
 
     public function logout(Request $request)
     {
@@ -107,10 +114,8 @@ class UserController extends Controller
                 'amount',
             ]);
 
-
         return view('User.dashboard', [
             'payments' => $localPayments,
-            // 'remotePayments' => $remotePayments ?? [],
         ]);
     }
 
@@ -139,11 +144,9 @@ class UserController extends Controller
         $user = $request->user();
 
         if (! Hash::check($request->input('current_password'), $user->password)) {
-            // send to named error bag "updatePassword"
             return back()->withErrors(['current_password' => 'Current password is incorrect.'], 'updatePassword');
         }
 
-        // Model cast will hash automatically
         $user->password = $request->input('password');
         $user->save();
 
