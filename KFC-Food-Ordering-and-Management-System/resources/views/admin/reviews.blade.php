@@ -38,6 +38,10 @@
   .comment{margin:.4rem 0 0; color:var(--gray-900);
            display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   .time{color:var(--gray-600); font-size:12px; white-space:nowrap}
+  .actions{display:flex; flex-direction:column; align-items:flex-end; gap:6px}
+.btn.btn-danger{background:#dc2626; color:#fff; border:1px solid #b91c1c; padding:6px 10px; border-radius:10px}
+.btn.btn-danger.xs{padding:4px 8px; font-size:12px}
+
 </style>
 
 </head>
@@ -160,7 +164,25 @@
             <p class="comment">{{ $r->comment }}</p>
           </div>
 
+          <div class="actions">
           <div class="time">{{ $when }}</div>
+
+          <form method="POST"
+                action="{{ route('admin.reviews.destroy', $r) }}"
+                onsubmit="return confirm('Delete this review permanently?');"
+                style="margin-top:6px">
+            @csrf
+            @method('DELETE')
+
+            {{-- Preserve current filters + page on redirect --}}
+            <input type="hidden" name="q" value="{{ $q }}">
+            <input type="hidden" name="rating" value="{{ $rating }}">
+            <input type="hidden" name="page" value="{{ request('page') }}">
+
+            <button type="submit" class="btn btn-danger xs">Delete</button>
+          </form>
+        </div>
+
         </article>
       @empty
         <div class="muted">No reviews found.</div>

@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('categories', CategoryController::class)->except(['show']);
 
         Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews');
+       Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
 
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
         Route::get('/reports/download', [AdminReportController::class, 'download'])->name('reports.download');
@@ -104,11 +105,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+    Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+    Route::post('/cart/proceed-to-payment', [CartController::class, 'proceedToPayment'])->name('cart.proceedToPayment');
+    Route::get('/cart/continue-shopping', [CartController::class, 'continueShopping'])->name('cart.continueShopping');
+
+    Route::post('/cart/delete', [CartController::class, 'deleteCart'])->name('cart.deleteCart');
 
     // Orders
     Route::post('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::delete('/orders/{order}/continue-shopping', [OrderController::class, 'continueShopping'])
+    ->name('orders.continueShopping');
+
 });
 
 #author’s name： Pang Jun Meng

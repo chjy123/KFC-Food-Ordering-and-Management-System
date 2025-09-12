@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PaymentApiController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\FoodApiController;
+use App\Http\Controllers\Api\UserWebServiceController;
 
 Route::prefix('payments')
     ->middleware(['auth:sanctum', 'throttle:10,1'])
@@ -33,4 +34,9 @@ Route::prefix('v1')->group(function () {
 
 Route::get('/ping', function () {
     return response()->json(['ok' => true, 'where' => 'api.php']);
+});
+
+Route::prefix('v1')->group(function () {
+    Route::get('/users/{userId}/info', [UserWebServiceController::class, 'getUserInfo'])
+        ->name('api.v1.users.info');
 });

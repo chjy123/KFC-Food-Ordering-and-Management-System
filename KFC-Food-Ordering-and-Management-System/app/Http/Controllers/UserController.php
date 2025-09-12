@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Services\Auth\UserServiceFactory;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -18,28 +20,37 @@ class UserController extends Controller
         return view('User.registration');
     }
 
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', 'min:8'],
-            'phoneNo'  => ['nullable', 'string', 'max:30'],
-        ]);
+    public function register(Request $request, UserServiceFactory $factory)
+{
+    // Normalize inputs a bit
+    $request->merge([
+        'email' => strtolower(trim($request->input('email', ''))),
+        'name'  => trim($request->input('name', '')),
+        'phoneNo' => trim((string) $request->input('phoneNo', '')),
+    ]);
 
-        $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => $validated['password'], // auto-hashed via casts() in your User model
-            'phoneNo'  => $validated['phoneNo'] ?? null,
-            'role'     => 'customer',
-        ]);
+    $validated = $request->validate([
+        'name'     => ['required','string','max:255'],
+        'email'    => ['required','email','max:255','unique:users,email'],
+        'password' => ['required','confirmed','min:8'],
+        'phoneNo'  => ['nullable','string','max:30'],
+        // Optional: allow role in form, but we will lock it down below
+        'role'     => ['nullable','in:admin,customer'],
+    ]);
 
-        Auth::login($user);
+    // 🔒 Block public admin signups (uncomment next line to allow invite-only later)
+    $validated['role'] = 'customer';
 
-        // After register, go to customer dashboard
-        return redirect()->route('home')->with('status', 'Registration successful. Welcome!');
-    }
+    $svc  = $factory->forRole($validated['role']);
+    $user = $svc->register($validated);
+
+    auth()->login($user);
+    $request->session()->regenerate();
+
+    return $user->isAdmin()
+        ? redirect()->route('admin.page')->with('status', 'Admin account created. Welcome!')
+        : redirect()->route('home')->with('status', 'Registration successful. Welcome!');
+}
 
     /* ---------- Login / Logout ---------- */
     public function showLogin()
@@ -48,27 +59,30 @@ class UserController extends Controller
         return view('User.signin');
     }
 
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+   public function login(Request $request, UserServiceFactory $factory)
+{
+    // Normalize email
+    $request->merge([
+        'email' => strtolower(trim($request->input('email', ''))),
+    ]);
 
-        $remember = (bool) $request->boolean('remember');
+    $request->validate([
+        'email'    => ['required','email'],
+        'password' => ['required'],
+        'remember' => ['sometimes','boolean'],
+    ]);
 
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
+    // Look up user to route to correct role service (default to customer if not found)
+    $role = optional(User::where('email', $request->email)->first())->role ?? 'customer';
+    $svc  = $factory->forRole($role);
 
-            $user = Auth::user();
-            if ($user && $user->role === 'admin') {
-                return redirect()->route('admin.page')->with('status', 'Welcome back, admin!');
-        }   
-            return redirect()->route('home')->with('status', 'Signed in successfully!');
-        }
+    // Service will handle Auth::attempt and session regeneration
+    $svc->login($request);
 
-        return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
-    }
+    return auth()->user()->isAdmin()
+        ? redirect()->route('admin.page')->with('status', 'Welcome back, admin!')
+        : redirect()->route('home')->with('status', 'Signed in successfully!');
+}
 
     public function logout(Request $request)
     {
@@ -82,19 +96,22 @@ class UserController extends Controller
     /* ---------- Dashboard + Updates ---------- */
     public function dashboard()
     {
-        // Author: Pang Jun Meng
-        $payments = Payment::where('user_id', Auth::id())
-            ->orderByDesc('id') 
+        $localPayments = Payment::where('user_id', auth()->id())
+            ->latest('id')
             ->limit(10)
             ->get([
-                'id as payment_id',      
+                'id as payment_id',
                 'payment_method',
                 'payment_status',
-                'payment_date',            
+                'payment_date',
                 'amount',
             ]);
 
-        return view('User.dashboard', compact('payments'));
+
+        return view('User.dashboard', [
+            'payments' => $localPayments,
+            // 'remotePayments' => $remotePayments ?? [],
+        ]);
     }
 
     public function updateProfile(Request $request)
@@ -131,5 +148,16 @@ class UserController extends Controller
         $user->save();
 
         return back()->with('password_status', 'Password updated successfully.');
+    }
+
+    private function fetchPaymentsFromService($userId): array
+    {
+        $resp = Http::acceptJson()->get("http://127.0.0.1:8001/api/v1/payments/user/{$userId}");
+
+        if ($resp->failed()) {
+            return [];
+        }
+
+        return $resp->json('data', []);
     }
 }

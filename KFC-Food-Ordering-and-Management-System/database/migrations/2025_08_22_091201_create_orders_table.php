@@ -15,13 +15,11 @@ return new class extends Migration
         $table->id();
         $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // customer
         $table->dateTime('order_date')->useCurrent();
-        $table->string('status')->default('Pending'); // Pending|Preparing|Ready|Completed|Cancelled
+        $table->string('status')->default('Received'); 
         $table->decimal('total_amount', 10, 2)->default(0);
         $table->timestamps();
     });
 }
-
-
     /**
      * Reverse the migrations.
      */

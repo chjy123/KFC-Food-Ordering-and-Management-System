@@ -50,10 +50,13 @@
     </table>
 
     <div class="mt-6 flex justify-between">
-        <form method="POST" action="{{ route('cart.clear') }}">
-            @csrf
-            <button type="submit" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">Clear Cart</button>
-        </form>
+        <form action="{{ route('cart.deleteCart') }}" method="POST">
+    @csrf
+    <button type="submit" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">
+        Clear Cart
+    </button>
+</form>
+
 
         <form method="POST" action="{{ route('orders.create') }}">
             @csrf
