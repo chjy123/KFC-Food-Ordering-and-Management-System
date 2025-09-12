@@ -6,80 +6,34 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Food;
 use App\Models\Review;
+use App\Builders\FoodQueryBuilder;
+use App\Builders\FoodQueryDirector;
 
 class MenuController extends Controller
 {
     // MENU LIST
      public function index(Request $request)
     {
-        $category = $request->query('category'); // slug or name
+        $category = $request->query('category');   // id or name
         $search   = $request->query('q', '');
+        $sort     = $request->query('sort', 'name'); // optional: ?sort=price|reviews_count|reviews_avg_rating
+        $dir      = $request->query('dir', 'asc');   // optional: ?dir=desc
 
-        // Detect if withAvg is available (Laravel 9+)
-        $builderSupportsWithAvg = method_exists((new Food)->newQuery(), 'withAvg');
+        // Builder Pattern: construct the complex query step-by-step
+        $foods = (new FoodQueryBuilder())
+            ->withAvgRating()
+            ->search($search)
+            ->byCategory($category)
+            ->sort($sort, $dir)
+            ->paginate(12);
 
-        $foods = Food::query()
-            ->with('category')
-            ->with('reviews')
-            ->withCount('reviews') // ->reviews_count
-            ->when($builderSupportsWithAvg, function ($q) {
-                $q->withAvg('reviews', 'rating'); // ->reviews_avg_rating
-            }, function ($q) {
-                // Fallback for Laravel < 9
-                $q->addSelect([
-                    'reviews_avg_rating' => Review::selectRaw('AVG(rating)')
-                        ->whereColumn('reviews.food_id', 'foods.id'),
-                ]);
-            })
-            ->when($category, function ($q) use ($category) {
-                $q->whereHas('category', function ($qq) use ($category) {
-                    if (is_numeric($category)) {
-                        $qq->where('id', $category);        // filter by ID
-                    } else {
-                        $qq->where('name', $category);      // filter by name
-                    }
-                });
-            })
-            ->when(strlen($search) > 0, function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            })
-            ->orderBy('name')
-            ->get();
-        
-        // 1. Start with a query builder
-        $foodsQuery = Food::query()
-            ->with('category')
-            ->withAvg('reviews', 'rating')
-            ->withCount('reviews');
-
-        // 2. Apply search filter
-        if ($search !== '') {
-            $foodsQuery->where('name', 'like', "%{$search}%");
-        }
-
-        // 3. Apply category filter
-        if (!is_null($category) && $category !== '') {
-            if (is_numeric($category)) {
-                // filter directly by id
-                $foodsQuery->where('category_id', (int)$category);
-            } else {
-                // resolve by name (change 'name' to your actual column if different)
-                $cat = Category::where('name', $category)->first();
-                if ($cat) {
-                    $foodsQuery->where('category_id', $cat->id);
-                }
-            }
-        }
-
-        $foods = $foodsQuery->orderBy('name')->paginate(12)->withQueryString();    
-            
         $categories = Category::orderBy('category_name')->get();
 
         return view('user.menu', [
-            'foods'    => $foods,
-            'category' => $category,
-            'search'   => $search,
-            'categories' => $categories,
+            'foods'       => $foods,
+            'category'    => $category,
+            'search'      => $search,
+            'categories'  => $categories,
         ]);
     }
 
