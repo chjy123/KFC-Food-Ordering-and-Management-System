@@ -11,7 +11,7 @@ class FoodApiController extends Controller
 {
     public function index(Request $request)
     {
-        $category = $request->query('category'); // id or name
+        $category = $request->query('category'); 
         $search   = $request->query('search');
 
         $foods = Food::query()
@@ -34,10 +34,9 @@ class FoodApiController extends Controller
                 });
             })
             ->when($search !== null && $search !== '', function ($q) use ($search) {
-                // Update 'name' below if your foods table uses a different column (e.g., food_name)
                 $q->whereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower(trim($search)) . '%']);
             })
-            ->orderBy('name') // change if your foods table uses food_name
+            ->orderBy('name')
             ->get();
 
         return FoodResource::collection($foods);
