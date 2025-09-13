@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Yew Kai Quan (for testing purposes only)
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -9,7 +9,6 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        // ❌ remove: Category::truncate();
 
         $categories = [
             ['category_name' => 'Main Dishes', 'description' => 'Delicious main courses'],

@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Yew Kai Quan
 namespace App\Http\Controllers\Middleware;
 
 use Closure;

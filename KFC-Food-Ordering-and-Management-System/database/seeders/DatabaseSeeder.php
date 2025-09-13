@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Yew Kai Quan (for testing purposes only)
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -13,25 +13,19 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1) Put production-safe seeds here (roles/admin). Leave empty if none.
-
-        // 2) Local/Staging demo data only
         if (App::environment(['local', 'staging'])) {
 
-            // --- Clear children with TRUNCATE (OK) ---
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             try {
-                Review::truncate(); // reviews.food_id -> foods.id
-                Food::truncate();   // foods.category_id -> categories.id
+                Review::truncate(); 
+                Food::truncate();   
             } finally {
                 DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             }
 
-            // --- Clear parent WITHOUT TRUNCATE ---
-            Category::query()->delete();                 // <-- no truncate here
+            Category::query()->delete();                
             DB::statement('ALTER TABLE categories AUTO_INCREMENT = 1');
 
-            // --- Seed demo data ---
             $this->call([
                 CategorySeeder::class,
                 FoodSeeder::class,

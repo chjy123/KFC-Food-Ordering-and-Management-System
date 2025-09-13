@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Yew Kai Quan
 namespace App\Support;
 
 use Illuminate\Support\Str;

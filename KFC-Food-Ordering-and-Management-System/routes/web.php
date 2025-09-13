@@ -73,7 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
         Route::get('/reports/download', [AdminReportController::class, 'download'])->name('reports.download');
     });
-/* Menu */
+/* Menu */ #author’s name： Yew Kai Quan (for testing purposes only)
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::get('/menu/{food}', [MenuController::class, 'show'])->name('menu.show'); // Food detail
 
@@ -90,13 +90,13 @@ Route::post('/foods/{food}/reviews', [MenuController::class, 'storeOrUpdateMyRev
 Route::delete('/foods/{food}/reviews', [MenuController::class, 'destroyMyReview'])->name('reviews.destroy.mine');
 
 
-//Location page
+//Location page #author’s name： Yew Kai Quan (for testing purposes only)
 Route::middleware([\App\Http\Controllers\Middleware\SanitizeNextParam::class])->group(function () {
     Route::get('/locations', [\App\Http\Controllers\LocationController::class, 'index'])->name('kfc.locations');
     Route::get('/locations/back', [\App\Http\Controllers\LocationController::class, 'back'])->name('kfc.locations.back');
 });
 
-//about page
+//about page #author’s name： Yew Kai Quan (for testing purposes only)
 Route::view('/about', 'user.about')->name('about');
 
 Route::middleware('auth')->group(function () {
