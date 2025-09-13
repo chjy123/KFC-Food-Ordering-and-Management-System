@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Yew Kai Quan (for testing purposes only)
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -10,7 +10,6 @@ class FoodSeeder extends Seeder
 {
     public function run(): void
     {
-        // ❌ remove: Food::truncate();
 
         $main = Category::where('category_name', 'Main Dishes')->first();
         $bev  = Category::where('category_name', 'Beverages')->first();

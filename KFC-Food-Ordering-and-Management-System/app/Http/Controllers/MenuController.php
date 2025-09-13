@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Yew Kai Quan
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -14,10 +14,10 @@ class MenuController extends Controller
     // MENU LIST
      public function index(Request $request)
     {
-        $category = $request->query('category');   // id or name
+        $category = $request->query('category');   
         $search   = $request->query('q', '');
-        $sort     = $request->query('sort', 'name'); // optional: ?sort=price|reviews_count|reviews_avg_rating
-        $dir      = $request->query('dir', 'asc');   // optional: ?dir=desc
+        $sort     = $request->query('sort', 'name'); 
+        $dir      = $request->query('dir', 'asc');  
 
         // Builder Pattern: construct the complex query step-by-step
         $foods = (new FoodQueryBuilder())
@@ -46,17 +46,17 @@ class MenuController extends Controller
 
         // Paginated reviews for the list below
         $reviews = $food->reviews()
-            ->with('user:id,name') // load reviewer name if available
+            ->with('user:id,name') 
             ->latest()
             ->paginate(5);
 
         // Consistent stats for the header
-        $food->loadCount('reviews'); // ->reviews_count
+        $food->loadCount('reviews'); 
         $reviewCount = $food->reviews_count;
 
         // Average (Laravel 9+ or fallback)
         if (method_exists($food, 'loadAvg')) {
-            $food->loadAvg('reviews', 'rating'); // ->reviews_avg_rating
+            $food->loadAvg('reviews', 'rating'); 
             $avg = round($food->reviews_avg_rating ?? 0, 1);
         } else {
             $avg = round((float) $food->reviews()->avg('rating'), 1);

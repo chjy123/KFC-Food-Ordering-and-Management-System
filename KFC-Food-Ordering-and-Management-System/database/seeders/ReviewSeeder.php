@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Yew Kai Quan (for testing purposes only)
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -11,7 +11,6 @@ class ReviewSeeder extends Seeder
 {
     public function run(): void
     {
-        // ❌ remove: Review::truncate();
 
         $user = User::first() ?? User::factory()->create([
             'name' => 'Test User',
