@@ -1,5 +1,5 @@
 <?php
-
+// Author's Name: Chow Jun Yu
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -10,10 +10,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Services\Auth\UserServiceFactory;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-    /* ---------- Registration ---------- */
+    // Registration
     public function showRegister()
     {
         // resources/views/User/registration.blade.php
@@ -22,7 +25,7 @@ class UserController extends Controller
 
     public function register(Request $request, UserServiceFactory $factory)
     {
-        // Normalize inputs a bit
+        // Normalize inputs
         $request->merge([
             'email' => strtolower(trim($request->input('email', ''))),
             'name'  => trim($request->input('name', '')),
@@ -37,7 +40,7 @@ class UserController extends Controller
             'role'     => ['nullable','in:admin,customer'],
         ]);
 
-        // 🔒 Block public admin signups
+        // Block public admin signups
         $validated['role'] = 'customer';
 
         $svc  = $factory->forRole($validated['role']);
@@ -45,7 +48,7 @@ class UserController extends Controller
 
         auth()->login($user);
 
-        // 🔑 Regenerate + bind session
+        // Regenerate + bind session
         $request->session()->regenerate();
         session(['ip_address' => $request->ip()]);
         session(['user_agent' => substr($request->userAgent(), 0, 120)]);
@@ -55,7 +58,7 @@ class UserController extends Controller
             : redirect()->route('home')->with('status', 'Registration successful. Welcome!');
     }
 
-    /* ---------- Login / Logout ---------- */
+    //Login / Logout 
     public function showLogin()
     {
         // resources/views/User/signin.blade.php
@@ -75,14 +78,43 @@ class UserController extends Controller
             'remember' => ['sometimes','boolean'],
         ]);
 
-        // Look up user
+        //Brute-force guard (per email + IP) 
+        $key = $this->loginThrottleKey($request);
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            throw ValidationException::withMessages([
+                'email' => "Too many attempts. Try again in {$seconds} seconds.",
+            ])->status(429);
+        }
+
+        usleep(min(RateLimiter::attempts($key) * 200000, 1000000)); // small delay
+
+        // Determine role and service
         $role = optional(User::where('email', $request->email)->first())->role ?? 'customer';
         $svc  = $factory->forRole($role);
 
-        // Service will handle Auth::attempt and session regeneration
-        $svc->login($request);
+        // Try login once
+        $ok = false;
+        try {
+            $ok = $svc->login($request); 
+        } catch (\Throwable $e) {
+            $ok = false;
+        }
 
-        // 🔑 Bind session to IP + UA
+        if (! $ok) {
+            RateLimiter::hit($key, 60); // record failure (decays after 60s)
+            \Log::info('Login failed, attempts so far: '.RateLimiter::attempts($key));
+
+            throw ValidationException::withMessages([
+                'email' => 'Invalid credentials.',
+            ]);
+        }
+
+        // Success → clear limiter
+        RateLimiter::clear($key);
+
+        // Bind session to IP + UA
         session(['ip_address' => $request->ip()]);
         session(['user_agent' => substr($request->userAgent(), 0, 120)]);
 
@@ -100,7 +132,7 @@ class UserController extends Controller
         return redirect()->route('home')->with('status', 'You have been logged out.');
     }
 
-    /* ---------- Dashboard + Updates ---------- */
+    // Dashboard + Updates
     public function dashboard()
     {
         $localPayments = Payment::where('user_id', auth()->id())
@@ -163,4 +195,11 @@ class UserController extends Controller
 
         return $resp->json('data', []);
     }
+
+    protected function loginThrottleKey(Request $request): string
+    {
+        $email = Str::lower($request->input('email', 'guest'));
+        return 'login:'.$email.'|'.$request->ip();
+    }
+
 }

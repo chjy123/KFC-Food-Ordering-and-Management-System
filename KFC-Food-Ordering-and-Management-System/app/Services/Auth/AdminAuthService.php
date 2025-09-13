@@ -1,4 +1,5 @@
 <?php
+// Author's Name: Chow Jun Yu
 namespace App\Services\Auth;
 
 use App\Models\User;

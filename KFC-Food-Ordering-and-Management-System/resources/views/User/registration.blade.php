@@ -1,6 +1,6 @@
 {{-- No <html> wrapper here; header/footer handle that --}}
 @include('Partials.header')
-
+<!-- Author's Name: Chow Jun Yu-->
 <section class="py-20 bg-gray-50">
   <div class="container mx-auto px-4">
     <div class="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-8">
