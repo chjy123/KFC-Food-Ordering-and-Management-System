@@ -102,23 +102,26 @@ Route::view('/about', 'user.about')->name('about');
 Route::middleware('auth')->group(function () {
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
+
+    // ✅ DoS protection: max 5 requests per minute
+    Route::middleware('throttle:5,1')->group(function () {
+        Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+        Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
+        Route::post('/cart/delete', [CartController::class, 'deleteCart'])->name('cart.deleteCart');
+    });
 
     Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
     Route::post('/cart/proceed-to-payment', [CartController::class, 'proceedToPayment'])->name('cart.proceedToPayment');
     Route::get('/cart/continue-shopping', [CartController::class, 'continueShopping'])->name('cart.continueShopping');
 
-    Route::post('/cart/delete', [CartController::class, 'deleteCart'])->name('cart.deleteCart');
-
     // Orders
     Route::post('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::delete('/orders/{order}/continue-shopping', [OrderController::class, 'continueShopping'])
-    ->name('orders.continueShopping');
-
+        ->name('orders.continueShopping');
 });
+
 
 #author’s name： Pang Jun Meng
 Route::middleware('auth')->group(function () {
