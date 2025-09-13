@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+
 
 class UserController extends Controller
 {
@@ -46,7 +48,7 @@ class UserController extends Controller
         $svc  = $factory->forRole($validated['role']);
         $user = $svc->register($validated);
 
-        auth()->login($user);
+        Auth::login($user);
 
         // Regenerate + bind session
         $request->session()->regenerate();
@@ -54,7 +56,7 @@ class UserController extends Controller
         session(['user_agent' => substr($request->userAgent(), 0, 120)]);
 
         return $user->isAdmin()
-            ? redirect()->route('admin.page')->with('status', 'Admin account created. Welcome!')
+            ? redirect()->route('dashboard')->with('status', 'Admin account created. Welcome!')
             : redirect()->route('home')->with('status', 'Registration successful. Welcome!');
     }
 
@@ -104,7 +106,8 @@ class UserController extends Controller
 
         if (! $ok) {
             RateLimiter::hit($key, 60); // record failure (decays after 60s)
-            \Log::info('Login failed, attempts so far: '.RateLimiter::attempts($key));
+            Log::info('Login failed, attempts so far: '.RateLimiter::attempts($key));
+
 
             throw ValidationException::withMessages([
                 'email' => 'Invalid credentials.',
@@ -118,9 +121,9 @@ class UserController extends Controller
         session(['ip_address' => $request->ip()]);
         session(['user_agent' => substr($request->userAgent(), 0, 120)]);
 
-        return auth()->user()->isAdmin()
-            ? redirect()->route('admin.page')->with('status', 'Welcome back, admin!')
-            : redirect()->route('home')->with('status', 'Signed in successfully!');
+       return (Auth::user()?->role === 'admin')
+    ? redirect()->route('admin.dashboard')->with('status', 'Welcome back, admin!')
+    : redirect()->route('home')->with('status', 'Signed in successfully!');
     }
 
     public function logout(Request $request)
@@ -135,16 +138,10 @@ class UserController extends Controller
     // Dashboard + Updates
     public function dashboard()
     {
-        $localPayments = Payment::where('user_id', auth()->id())
-            ->latest('id')
-            ->limit(10)
-            ->get([
-                'id as payment_id',
-                'payment_method',
-                'payment_status',
-                'payment_date',
-                'amount',
-            ]);
+        $localPayments = Payment::where('user_id', Auth::id())
+    ->latest('id')
+    ->limit(10)
+    ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
 
         return view('User.dashboard', [
             'payments' => $localPayments,

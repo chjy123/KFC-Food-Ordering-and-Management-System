@@ -7,6 +7,7 @@ use App\Models\Food;
 use App\Support\Bus\Command;
 use App\Support\Bus\CommandHandler;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateFoodHandler implements CommandHandler
 {
@@ -14,6 +15,10 @@ class UpdateFoodHandler implements CommandHandler
     {
         /** @var UpdateFoodCommand $command */
         $food = Food::findOrFail($command->foodId);
+        
+        if (!Auth::user()?->role === 'admin') {
+        throw new \Illuminate\Auth\Access\AuthorizationException('Admins only');
+         }
 
         $food->fill([
             'category_id' => $command->categoryId,

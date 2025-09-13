@@ -17,16 +17,22 @@ class Kernel extends HttpKernel
 
     protected $middlewareGroups = [
     'web' => [
-        \App\Http\Middleware\EncryptCookies::class,
+
         \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \App\Http\Middleware\VerifyCsrfToken::class,
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
 
         // ✅ Custom middleware
         \App\Http\Middleware\VerifyUserSession::class,
     ],
+
+    #author’s name： Lim Jing Min
+    'api' => [
+           \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
 ];
 
 
@@ -40,4 +46,6 @@ class Kernel extends HttpKernel
         // 'idempotency' => \App\Http\Middleware\Idempotency::class,
         // 'verify.hmac' => \App\Http\Middleware\VerifyHmac::class,
     ];
+
+
 }

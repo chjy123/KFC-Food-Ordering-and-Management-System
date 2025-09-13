@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <title>Admin • Orders</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
   <link rel="stylesheet" href="/css/admin.css" />
   <style>
   
@@ -193,7 +195,7 @@
                   'payment' => [
                     'status' => $payPretty,
                     'method' => $order->payment->payment_method ?? '-',
-                    'date'   => optional($order->payment->payment_date)->format('d/m H:i')
+                    'date'   => optional($order->payment?->payment_date)->format('d/m H:i')
                   ],
                   'time'  => optional($order->created_at)->format('H:i'),
                   'items' => $items,
