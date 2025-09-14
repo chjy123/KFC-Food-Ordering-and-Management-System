@@ -57,4 +57,12 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/reviews', [ReviewApiController::class, 'index']) ;                // ?rating=&q=
     Route::delete('/reviews/{review}', [ReviewApiController::class, 'destroy'])
         ->whereNumber('review');
+
+        
+});
+
+#author’s name： Chow Jun Yu
+Route::prefix('v1')->group(function () {
+    Route::get('/foods', [FoodApiController::class, 'index']);
+    Route::get('/foods/{food}', [FoodApiController::class, 'show']);
 });
