@@ -151,12 +151,13 @@ class UserController extends Controller
     public function dashboard()
     {
         $localPayments = Payment::where('user_id', Auth::id())
-            ->latest('id')
-            ->limit(10)
-            ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
+    ->latest('id')
+    ->limit(10)
+    ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
 
         return view('User.dashboard', [
             'payments' => $localPayments,
+            'foods'    => $foods,   // you can loop and display these in a table
         ]);
     }
 
@@ -197,6 +198,7 @@ class UserController extends Controller
     private function fetchPaymentsFromService($userId): array
     {
         $resp = Http::acceptJson()->get("http://127.0.0.1:8001/api/v1/payments/user/{$userId}");
+
         if ($resp->failed()) {
             return [];
         }
@@ -208,6 +210,18 @@ class UserController extends Controller
         $email = Str::lower($request->input('email', 'guest'));
         return 'login:'.$email.'|'.$request->ip();
     }
+
+    private function fetchFoodsFromService(): array
+    {
+        $url = "http://127.0.0.1:8000/api/v1/foods";
+        $resp = Http::acceptJson()->get($url);
+
+        if (! $resp->successful()) {
+            return [];
+        }
+
+        return $resp->json();
+    }       
 
     /**
      * 🔐 Helper: create + set device lock cookie/session
