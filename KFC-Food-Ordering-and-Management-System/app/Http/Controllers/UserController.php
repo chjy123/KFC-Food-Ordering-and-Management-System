@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
-
+use App\Http\Controllers\Api\FoodApiController;
 
 class UserController extends Controller
 {
@@ -138,17 +138,19 @@ class UserController extends Controller
     // Dashboard + Updates
     public function dashboard()
     {
-        $localPayments = \App\Models\Payment::where('user_id', auth()->id())
+        $localPayments = Payment::where('user_id', auth()->id())
             ->latest('id')
             ->limit(10)
             ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
 
-        // consume categories from the API
-        $categories = $this->fetchCategories();
+        // Call API controller internally
+        $controller    = app(FoodApiController::class);
+        $jsonResponse  = $controller->categories();
+        $categories    = $jsonResponse->getData(true);
 
         return view('User.dashboard', [
             'payments'   => $localPayments,
-            'categories' => $categories,   
+            'categories' => $categories,
         ]);
     }
 
@@ -191,17 +193,6 @@ class UserController extends Controller
         $email = Str::lower($request->input('email', 'guest'));
         return 'login:'.$email.'|'.$request->ip();
     }
-     
-
-    private function fetchCategories(): array
-    {
-        $url = 'http://127.0.0.1:8000/api/v1/categories';
-        $resp = Http::acceptJson()->timeout(5)->get($url);
-
-        if (! $resp->successful()) {
-            return [];
-        }
-        return $resp->json() ?? [];
-    }
+    
 
 }

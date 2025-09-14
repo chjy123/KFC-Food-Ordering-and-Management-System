@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\FoodResource;
 use App\Models\Food;
 use Illuminate\Http\Request;
+use App\Models\Category;
 
 class FoodApiController extends Controller
 {
@@ -51,4 +52,15 @@ class FoodApiController extends Controller
 
         return new FoodResource($food);
     }
+
+    public function categories()
+{
+    $rows = Category::query()
+        ->select('id', 'category_name', 'category_name as name') // include both
+        ->orderBy('category_name')
+        ->get()
+        ->makeHidden(['category_name']); // don't show the extra column
+
+    return response()->json($rows);
+}
 }
