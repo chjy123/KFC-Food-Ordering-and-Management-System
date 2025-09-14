@@ -40,4 +40,7 @@ return [
     'secret' => env('STRIPE_SECRET_KEY'),
     ],
 
+      'menu' => [
+        'base' => env('MENU_API_BASE_URL', 'http://localhost/your-app/public'),
+    ],
 ];

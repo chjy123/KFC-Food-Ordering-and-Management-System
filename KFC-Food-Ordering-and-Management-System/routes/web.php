@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Web\PaymentWebController;
 use App\Http\Controllers\StripeController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\AdminMenuImportController;
 
 //* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
@@ -44,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/dashboard', [UserController::class, 'updateProfile'])->name('dashboard.update');
     Route::put('/dashboard/password', [UserController::class, 'updatePassword'])->name('dashboard.password');
 
+    #author’s name： Lim Jing Min
       Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth','can:isAdmin'])
@@ -65,6 +67,13 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
         Route::get('/reports/download', [AdminReportController::class, 'download'])->name('reports.download');
+    
+      Route::get('/consume/foods.json', function (\Illuminate\Http\Request $r, \App\Services\MenuApiClient $api) {
+        $q = (string) $r->query('q', '');
+        $payload = $api->listFoods($q);   
+        return response()->json($payload);
+        })->name('consume.foods.json');
+        
     });
 });
 
@@ -144,3 +153,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/payments', [PaymentController::class, 'history'])->name('payments.history');
 });
 
+
+
+Route::get('/debug/menu-config', fn () => config('services.menu.base'));
+Route::get('/debug/menu-url', function () {
+    $base = rtrim(config('services.menu.base'), '/');
+    return $base . '/api/v1/foods';
+});

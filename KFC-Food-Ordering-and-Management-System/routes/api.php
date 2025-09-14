@@ -47,14 +47,15 @@ Route::prefix('v1')->group(function () {
 });
 
 #author’s name： Lim Jing Min
-Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+Route::prefix('v1')->group(function () {
     // Orders (read + advance status)
-    Route::get('/orders', [OrderApiController::class, 'index']);                   // ?status=Received|Preparing|Completed
-    Route::post('/orders/{order}/advance', [OrderApiController::class, 'advance']) // moves Received→Preparing→Completed
+    Route::get('/orders', [OrderApiController::class, 'index']);                   
+    Route::post('/orders/{order}/advance', [OrderApiController::class, 'advance']) 
         ->whereNumber('order');
 
     // Reviews (read + hard delete)
-    Route::get('/reviews', [ReviewApiController::class, 'index']) ;                // ?rating=&q=
+    Route::get('/reviews', [ReviewApiController::class, 'index']) ;                
     Route::delete('/reviews/{review}', [ReviewApiController::class, 'destroy'])
         ->whereNumber('review');
 });
+
