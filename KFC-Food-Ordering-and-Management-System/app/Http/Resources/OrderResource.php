@@ -23,6 +23,22 @@ class OrderResource extends JsonResource
                 'paid_at'=> optional($this->payment?->payment_date)->toIso8601String(),
             ],
             'created_at'    => $this->created_at?->toIso8601String(),
+            
+            #author’s name： Lim Jun Hong
+            
+            'items'         => $this->whenLoaded('items', function () {
+                return $this->items->map(function ($i) {
+                    return [
+                        'food' => [
+                            'id'   => $i->food->id    ?? $i->food_id,
+                            'name' => $i->food->name  ?? null,
+                        ],
+                        'quantity'   => (int) $i->quantity,
+                        'unit_price' => (float) $i->unit_price,
+                        'subtotal'   => (float) ($i->quantity * $i->unit_price),
+                    ];
+                });
+            }),
         ];
     }
 }

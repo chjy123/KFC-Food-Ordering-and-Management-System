@@ -99,6 +99,6 @@ class CartController extends Controller
                              ->with('success', 'Cart deleted. Proceeding to payment.');
         }
 
-        return redirect()->back()->with('status', 'Cart cleared and deleted!');
+        return redirect()->back()->with('status', 'Cart cleared!');
     }
 }

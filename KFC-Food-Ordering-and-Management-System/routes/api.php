@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\FoodApiController;
 use App\Http\Controllers\Api\UserWebServiceController;
 use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\ReviewApiController;
+use Illuminate\Http\Request;
 
 
 Route::prefix('payments')
@@ -53,6 +54,13 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/orders/{order}/advance', [OrderApiController::class, 'advance']) // moves Received→Preparing→Completed
         ->whereNumber('order');
 
+    // ✅ NEW: Order Web Services (exposure)
+    Route::get('/orders/{order}', [OrderApiController::class, 'show'])             // read one order with items
+        ->whereNumber('order');
+
+    Route::post('/orders', [OrderApiController::class, 'store']);                  // create order from items[]
+    // (store consumes Menu/Food API to validate price/availability)
+
     // Reviews (read + hard delete)
     Route::get('/reviews', [ReviewApiController::class, 'index']) ;                // ?rating=&q=
     Route::delete('/reviews/{review}', [ReviewApiController::class, 'destroy'])
@@ -66,3 +74,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/foods', [FoodApiController::class, 'index']);
     Route::get('/foods/{food}', [FoodApiController::class, 'show']);
 });
+
+#author’s name： Lim Jun Hong
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::post('/orders', [\App\Http\Controllers\Api\OrderApiController::class, 'store']);
+});
+    

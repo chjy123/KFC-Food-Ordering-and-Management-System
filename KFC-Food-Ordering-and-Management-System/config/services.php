@@ -40,4 +40,10 @@ return [
     'secret' => env('STRIPE_SECRET_KEY'),
     ],
 
+    #author’s name： Lim Jun Hong
+    
+    'menu' => [
+        'base_url' => env('MENU_BASE_URL', 'http://127.0.0.1:8000'),
+    ],
+
 ];
