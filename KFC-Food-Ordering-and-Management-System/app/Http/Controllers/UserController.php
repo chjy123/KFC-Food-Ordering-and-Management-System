@@ -15,11 +15,13 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
+
 class UserController extends Controller
 {
     // Registration
     public function showRegister()
     {
+        // resources/views/User/registration.blade.php
         return view('User.registration');
     }
 
@@ -27,8 +29,8 @@ class UserController extends Controller
     {
         // Normalize inputs
         $request->merge([
-            'email'   => strtolower(trim($request->input('email', ''))),
-            'name'    => trim($request->input('name', '')),
+            'email' => strtolower(trim($request->input('email', ''))),
+            'name'  => trim($request->input('name', '')),
             'phoneNo' => trim((string) $request->input('phoneNo', '')),
         ]);
 
@@ -40,7 +42,7 @@ class UserController extends Controller
             'role'     => ['nullable','in:admin,customer'],
         ]);
 
-        // Force role
+        // Block public admin signups
         $validated['role'] = 'customer';
 
         $svc  = $factory->forRole($validated['role']);
@@ -48,29 +50,26 @@ class UserController extends Controller
 
         Auth::login($user);
 
-        // 🔐 Secure session regeneration
+        // Regenerate + bind session
         $request->session()->regenerate();
-        session([
-            'ip_address' => $request->ip(),
-            'user_agent' => substr($request->userAgent(), 0, 120),
-        ]);
-
-        // 🔐 Create device lock secret
-        $this->setDeviceLock($request);
+        session(['ip_address' => $request->ip()]);
+        session(['user_agent' => substr($request->userAgent(), 0, 120)]);
 
         return $user->isAdmin()
-            ? redirect()->route('admin.dashboard')->with('status', 'Admin account created. Welcome!')
+            ? redirect()->route('dashboard')->with('status', 'Admin account created. Welcome!')
             : redirect()->route('home')->with('status', 'Registration successful. Welcome!');
     }
 
-    // Login / Logout
+    //Login / Logout 
     public function showLogin()
     {
+        // resources/views/User/signin.blade.php
         return view('User.signin');
     }
 
     public function login(Request $request, UserServiceFactory $factory)
     {
+        // Normalize email
         $request->merge([
             'email' => strtolower(trim($request->input('email', ''))),
         ]);
@@ -81,8 +80,9 @@ class UserController extends Controller
             'remember' => ['sometimes','boolean'],
         ]);
 
-        // Brute-force guard
+        //Brute-force guard (per email + IP) 
         $key = $this->loginThrottleKey($request);
+
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
             throw ValidationException::withMessages([
@@ -90,75 +90,66 @@ class UserController extends Controller
             ])->status(429);
         }
 
-        usleep(min(RateLimiter::attempts($key) * 200000, 1000000));
+        usleep(min(RateLimiter::attempts($key) * 200000, 1000000)); // small delay
 
+        // Determine role and service
         $role = optional(User::where('email', $request->email)->first())->role ?? 'customer';
         $svc  = $factory->forRole($role);
 
+        // Try login once
         $ok = false;
         try {
-            $ok = $svc->login($request);
+            $ok = $svc->login($request); 
         } catch (\Throwable $e) {
             $ok = false;
         }
 
         if (! $ok) {
-            RateLimiter::hit($key, 60);
+            RateLimiter::hit($key, 60); // record failure (decays after 60s)
             Log::info('Login failed, attempts so far: '.RateLimiter::attempts($key));
+
+
             throw ValidationException::withMessages([
                 'email' => 'Invalid credentials.',
             ]);
         }
 
+        // Success → clear limiter
         RateLimiter::clear($key);
 
-        session([
-            'ip_address' => $request->ip(),
-            'user_agent' => substr($request->userAgent(), 0, 120),
-        ]);
+        // Bind session to IP + UA
+        session(['ip_address' => $request->ip()]);
+        session(['user_agent' => substr($request->userAgent(), 0, 120)]);
 
-        // 🔐 Create device lock secret
-        $this->setDeviceLock($request);
-
-        return (Auth::user()?->role === 'admin')
-            ? redirect()->route('admin.dashboard')->with('status', 'Welcome back, admin!')
-            : redirect()->route('home')->with('status', 'Signed in successfully!');
+       return (Auth::user()?->role === 'admin')
+    ? redirect()->route('admin.dashboard')->with('status', 'Welcome back, admin!')
+    : redirect()->route('home')->with('status', 'Signed in successfully!');
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // 🔐 Forget device lock cookie
-        $forget = cookie('sid_lock', null, -60,
-            config('session.path', '/'),
-            config('session.domain', null),
-            config('session.secure', false),
-            config('session.http_only', true),
-            false,
-            config('session.same_site', 'lax')
-        );
-
-        return redirect()->route('home')
-            ->with('status', 'You have been logged out.')
-            ->withCookie($forget);
+        return redirect()->route('home')->with('status', 'You have been logged out.');
     }
 
     // Dashboard + Updates
     public function dashboard()
     {
-        $localPayments = Payment::where('user_id', Auth::id())
-    ->latest('id')
-    ->limit(10)
-    ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
+        $localPayments = \App\Models\Payment::where('user_id', auth()->id())
+        ->latest('id')
+        ->limit(10)
+        ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
 
-        return view('User.dashboard', [
-            'payments' => $localPayments,
-            'foods'    => $foods,   // you can loop and display these in a table
-        ]);
+    // consume categories from the API
+    $categories = $this->fetchCategories();
+
+    return view('User.dashboard', [
+        'payments'   => $localPayments,
+        'categories' => $categories,   // now available to your blade
+    ]);
     }
 
     public function updateProfile(Request $request)
@@ -197,11 +188,12 @@ class UserController extends Controller
 
     private function fetchPaymentsFromService($userId): array
     {
-        $resp = Http::acceptJson()->get("http://127.0.0.1:8001/api/v1/payments/user/{$userId}");
+        $resp = Http::acceptJson()->get("http://127.0.0.1:8000/api/v1/payments/user/{$userId}");
 
         if ($resp->failed()) {
             return [];
         }
+
         return $resp->json('data', []);
     }
 
@@ -223,24 +215,16 @@ class UserController extends Controller
         return $resp->json();
     }       
 
-    /**
-     * 🔐 Helper: create + set device lock cookie/session
-     */
-    private function setDeviceLock(Request $request)
-    {
-        $lock = bin2hex(random_bytes(32));
-        session(['sid_lock' => $lock]);
+    private function fetchCategories(): array
+{
+    // If the categories API runs in the same app/port, use 8000; if teammate runs another app, use their port (e.g., 8001)
+    $url = 'http://127.0.0.1:8000/api/v1/categories';
+    $resp = Http::acceptJson()->timeout(5)->get($url);
 
-        $minutes  = (int) config('session.lifetime', 30);
-        $path     = config('session.path', '/');
-        $domain   = config('session.domain', null);
-        $secure   = (bool) config('session.secure', false);
-        $httpOnly = (bool) config('session.http_only', true);
-        $sameSite = config('session.same_site', 'lax');
-
-        $cookie = cookie('sid_lock', $lock, $minutes, $path, $domain, $secure, $httpOnly, false, $sameSite);
-
-        // attach cookie to response
-        cookie()->queue($cookie);
+    if (! $resp->successful()) {
+        return [];
     }
+    return $resp->json() ?? [];
+}
+
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\FoodApiController;
 use App\Http\Controllers\Api\UserWebServiceController;
 use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\ReviewApiController;
+use App\Models\Category;
 
 
 Route::prefix('payments')
@@ -61,8 +62,12 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
         
 });
 
-#author’s name： Chow Jun Yu
+# author's name:Chow Jun Yu
 Route::prefix('v1')->group(function () {
-    Route::get('/foods', [FoodApiController::class, 'index']);
-    Route::get('/foods/{food}', [FoodApiController::class, 'show']);
+    Route::get('/categories', function () {
+        return Category::query()
+            ->select('id', 'category_name as name')   // 👈 alias category_name → name
+            ->orderBy('category_name')                // 👈 sort by category_name
+            ->get();
+    });
 });
