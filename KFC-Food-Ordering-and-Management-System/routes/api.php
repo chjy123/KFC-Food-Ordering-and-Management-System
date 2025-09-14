@@ -69,10 +69,9 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
         
 });
 
-#author’s name： Chow Jun Yu
+# author's name:Chow Jun Yu
 Route::prefix('v1')->group(function () {
-    Route::get('/foods', [FoodApiController::class, 'index']);
-    Route::get('/foods/{food}', [FoodApiController::class, 'show']);
+    Route::get('/categories', [FoodApiController::class, 'categories']);
 });
 
 #author’s name： Lim Jun Hong
@@ -82,4 +81,3 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/orders', [\App\Http\Controllers\Api\OrderApiController::class, 'store']);
 });
-    
