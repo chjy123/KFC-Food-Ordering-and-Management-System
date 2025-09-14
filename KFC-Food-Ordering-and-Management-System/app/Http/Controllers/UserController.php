@@ -139,17 +139,17 @@ class UserController extends Controller
     public function dashboard()
     {
         $localPayments = \App\Models\Payment::where('user_id', auth()->id())
-        ->latest('id')
-        ->limit(10)
-        ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
+            ->latest('id')
+            ->limit(10)
+            ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
 
-    // consume categories from the API
-    $categories = $this->fetchCategories();
+        // consume categories from the API
+        $categories = $this->fetchCategories();
 
-    return view('User.dashboard', [
-        'payments'   => $localPayments,
-        'categories' => $categories,   // now available to your blade
-    ]);
+        return view('User.dashboard', [
+            'payments'   => $localPayments,
+            'categories' => $categories,   
+        ]);
     }
 
     public function updateProfile(Request $request)
@@ -186,45 +186,22 @@ class UserController extends Controller
         return back()->with('password_status', 'Password updated successfully.');
     }
 
-    private function fetchPaymentsFromService($userId): array
-    {
-        $resp = Http::acceptJson()->get("http://127.0.0.1:8000/api/v1/payments/user/{$userId}");
-
-        if ($resp->failed()) {
-            return [];
-        }
-
-        return $resp->json('data', []);
-    }
-
     protected function loginThrottleKey(Request $request): string
     {
         $email = Str::lower($request->input('email', 'guest'));
         return 'login:'.$email.'|'.$request->ip();
     }
+     
 
-    private function fetchFoodsFromService(): array
+    private function fetchCategories(): array
     {
-        $url = "http://127.0.0.1:8000/api/v1/foods";
-        $resp = Http::acceptJson()->get($url);
+        $url = 'http://127.0.0.1:8000/api/v1/categories';
+        $resp = Http::acceptJson()->timeout(5)->get($url);
 
         if (! $resp->successful()) {
             return [];
         }
-
-        return $resp->json();
-    }       
-
-    private function fetchCategories(): array
-{
-    // If the categories API runs in the same app/port, use 8000; if teammate runs another app, use their port (e.g., 8001)
-    $url = 'http://127.0.0.1:8000/api/v1/categories';
-    $resp = Http::acceptJson()->timeout(5)->get($url);
-
-    if (! $resp->successful()) {
-        return [];
+        return $resp->json() ?? [];
     }
-    return $resp->json() ?? [];
-}
 
 }
