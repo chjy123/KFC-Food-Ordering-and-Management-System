@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+#author’s name： Lim Jun Hong
+use Laravel\Sanctum\HasApiTokens; // ✅ Added for token support
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable; // ✅ Added HasApiTokens
 
     /**
      * Mass assignable attributes.

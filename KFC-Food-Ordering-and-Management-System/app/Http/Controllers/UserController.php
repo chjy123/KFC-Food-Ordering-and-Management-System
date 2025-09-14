@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
-
+use App\Http\Controllers\Api\FoodApiController;
 
 class UserController extends Controller
 {
@@ -138,13 +138,19 @@ class UserController extends Controller
     // Dashboard + Updates
     public function dashboard()
     {
-        $localPayments = Payment::where('user_id', Auth::id())
-    ->latest('id')
-    ->limit(10)
-    ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
+        $localPayments = Payment::where('user_id', auth()->id())
+            ->latest('id')
+            ->limit(10)
+            ->get(['id as payment_id','payment_method','payment_status','payment_date','amount']);
+
+        // Call API controller internally
+        $controller    = app(FoodApiController::class);
+        $jsonResponse  = $controller->categories();
+        $categories    = $jsonResponse->getData(true);
 
         return view('User.dashboard', [
-            'payments' => $localPayments,
+            'payments'   => $localPayments,
+            'categories' => $categories,
         ]);
     }
 
@@ -182,21 +188,11 @@ class UserController extends Controller
         return back()->with('password_status', 'Password updated successfully.');
     }
 
-    private function fetchPaymentsFromService($userId): array
-    {
-        $resp = Http::acceptJson()->get("http://127.0.0.1:8001/api/v1/payments/user/{$userId}");
-
-        if ($resp->failed()) {
-            return [];
-        }
-
-        return $resp->json('data', []);
-    }
-
     protected function loginThrottleKey(Request $request): string
     {
         $email = Str::lower($request->input('email', 'guest'));
         return 'login:'.$email.'|'.$request->ip();
     }
+    
 
 }
