@@ -104,6 +104,7 @@ Route::middleware([\App\Http\Controllers\Middleware\SanitizeNextParam::class])->
 //about page #author’s name： Yew Kai Quan (for testing purposes only)
 Route::view('/about', 'user.about')->name('about');
 
+#author’s name： Lim Jun Hong
 Route::middleware('auth')->group(function () {
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

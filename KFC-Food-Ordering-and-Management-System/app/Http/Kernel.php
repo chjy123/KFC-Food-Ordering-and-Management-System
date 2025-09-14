@@ -16,6 +16,7 @@ class Kernel extends HttpKernel
     ];
 
     protected $middlewareGroups = [
+    #author’s name： Lim Jun Hong
     'web' => [
         \App\Http\Middleware\EncryptCookies::class,
         \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,

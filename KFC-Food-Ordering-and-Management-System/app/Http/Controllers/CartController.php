@@ -1,5 +1,6 @@
 <?php
 
+#author’s name： Lim Jun Hong
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
