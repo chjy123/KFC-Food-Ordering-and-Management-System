@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\FoodResource;
 use App\Models\Food;
 use Illuminate\Http\Request;
+use App\Models\Category;
 
 class FoodApiController extends Controller
 {
@@ -51,4 +52,20 @@ class FoodApiController extends Controller
 
         return new FoodResource($food);
     }
+
+    public function categories()
+{
+    // fetch real columns, then map to the shape you want
+    $rows = Category::query()
+        ->select('id', 'category_name')
+        ->orderBy('category_name')
+        ->get();
+
+    $data = $rows->map(fn($c) => [
+        'id'   => $c->id,
+        'name' => $c->category_name, // explicit mapping, accessor won't interfere
+    ]);
+
+    return response()->json($data->values());
+}
 }
