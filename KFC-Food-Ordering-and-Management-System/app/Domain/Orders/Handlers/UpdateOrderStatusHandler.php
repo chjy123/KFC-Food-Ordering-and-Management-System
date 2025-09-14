@@ -9,6 +9,7 @@ use App\Domain\Orders\Exceptions\UnsupportedOrderStatus;
 use App\Models\Order;
 use App\Support\Bus\Command;
 use App\Support\Bus\CommandHandler;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateOrderStatusHandler implements CommandHandler
 {
@@ -16,15 +17,17 @@ class UpdateOrderStatusHandler implements CommandHandler
     {
         /** @var UpdateOrderStatusCommand $command */
         $order = Order::with('payment')->findOrFail($command->orderId);
-
-        // 1) Already completed?
+        if (!Auth::user()?->role === 'admin') {
+        throw new \Illuminate\Auth\Access\AuthorizationException('Admins only');
+    }
+    
         if ($order->status === Order::COMPLETED) {
             throw new OrderAlreadyCompleted("Order #{$order->id} is already Completed.");
         }
 
-        // 2) Payment checks (match your controller’s behavior)
+       
         $payPretty = optional($order->payment)->payment_status ?? 'Pending';
-        $payKey    = strtolower($payPretty); // pending|success|failed|...
+        $payKey    = strtolower($payPretty); 
 
         if ($payKey !== 'success') {
             $why = match ($payKey) {
@@ -35,7 +38,7 @@ class UpdateOrderStatusHandler implements CommandHandler
             throw new PaymentNotSuccessful("Order #{$order->id} cannot be updated: {$why}");
         }
 
-        // 3) Transition + timestamps
+       
         $now = now();
         switch ($order->status) {
             case Order::RECEIVED:
@@ -54,6 +57,6 @@ class UpdateOrderStatusHandler implements CommandHandler
 
         $order->save();
 
-        return $order->fresh(); // controller will use ->status in the flash message
+        return $order->fresh(); 
     }
 }

@@ -15,9 +15,9 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\FoodController;    
 use App\Http\Controllers\Admin\AdminReviewController; 
 use App\Http\Controllers\Admin\AdminReportController;  
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Web\PaymentWebController;
 use App\Http\Controllers\StripeController;
+use Illuminate\Support\Facades\Auth;
 
 //* Home -> resources/views/User/home.blade.php */
 Route::get('/', fn () => view('User.home'))->name('home');
@@ -44,23 +44,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/dashboard', [UserController::class, 'updateProfile'])->name('dashboard.update');
     Route::put('/dashboard/password', [UserController::class, 'updatePassword'])->name('dashboard.password');
 
-        Route::middleware('auth')->group(function () {
-    // admin page
-    Route::get('/admin', function () {
-        $user = Auth::user();
-        if (! $user || $user->role !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-        return app(AdminDashboardController::class)->index();
-    })->name('admin.page');
-});
-});
- Route::prefix('admin')->name('admin.')->group(function () {
-    
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+      Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth','can:isAdmin'])
+    ->group(function () {
+         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders');
-        Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
+            ->whereNumber('order')->name('orders.updateStatus');
 
         Route::get('/menu', [AdminMenuController::class, 'index'])->name('menu');
 
@@ -68,11 +60,24 @@ Route::middleware('auth')->group(function () {
         Route::resource('categories', CategoryController::class)->except(['show']);
 
         Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews');
-       Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+        Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])
+            ->whereNumber('review')->name('reviews.destroy');
 
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
         Route::get('/reports/download', [AdminReportController::class, 'download'])->name('reports.download');
     });
+});
+
+
+Route::get('/whoami', function () {
+    if (! Auth::check()) {
+        return 'Not logged in';
+    }
+    $u = Auth::user();
+    return "Logged in as {$u->email} (role={$u->role})";
+})->middleware('web');
+
+
 /* Menu */ #author’s name： Yew Kai Quan (for testing purposes only)
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::get('/menu/{food}', [MenuController::class, 'show'])->name('menu.show'); // Food detail
@@ -99,6 +104,7 @@ Route::middleware([\App\Http\Controllers\Middleware\SanitizeNextParam::class])->
 //about page #author’s name： Yew Kai Quan (for testing purposes only)
 Route::view('/about', 'user.about')->name('about');
 
+#author’s name： Lim Jun Hong
 Route::middleware('auth')->group(function () {
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <title>Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
   <link rel="stylesheet" href="/css/admin.css" />
 
   <style>
@@ -48,7 +49,7 @@
 <body>
   <div class="layout">
 
-    <!-- Sidebar  -->
+    
     <aside class="sidebar" aria-label="Admin navigation">
       <div class="brand">
   <div class="brand-logo-text">KFC <span class="brand-sub">Admin</span></div>
@@ -73,7 +74,7 @@
 
     </aside>
 
-    <!-- Main -->
+   
 <main class="main">
   <header class="topbar">
     <button class="menu-toggle" aria-label="Toggle menu">☰</button>

@@ -7,12 +7,17 @@ use App\Models\Food;
 use App\Support\Bus\Command;
 use App\Support\Bus\CommandHandler;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class DeleteFoodHandler implements CommandHandler
 {
     public function handle(Command $command)
     {
         /** @var DeleteFoodCommand $command */
+            if (!Auth::user()?->role === 'admin') {
+        throw new \Illuminate\Auth\Access\AuthorizationException('Admins only');
+        }
+
         $food = Food::findOrFail($command->foodId);
 
         if ($food->image_url) {
