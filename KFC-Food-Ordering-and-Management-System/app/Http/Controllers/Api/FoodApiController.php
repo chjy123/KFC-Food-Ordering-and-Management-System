@@ -55,17 +55,12 @@ class FoodApiController extends Controller
 
     public function categories()
 {
-    // fetch real columns, then map to the shape you want
     $rows = Category::query()
-        ->select('id', 'category_name')
+        ->select('id', 'category_name', 'category_name as name') // include both
         ->orderBy('category_name')
-        ->get();
+        ->get()
+        ->makeHidden(['category_name']); // don't show the extra column
 
-    $data = $rows->map(fn($c) => [
-        'id'   => $c->id,
-        'name' => $c->category_name, // explicit mapping, accessor won't interfere
-    ]);
-
-    return response()->json($data->values());
+    return response()->json($rows);
 }
 }
