@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
                 CategorySeeder::class,
                 FoodSeeder::class,
                 ReviewSeeder::class,
+                UserSeeder::class,
             ]);
         }
     }
