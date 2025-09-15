@@ -69,10 +69,12 @@ php artisan serve
 ## Login
 **Admin:**
 Email:admin@gmail.com
+
 Password: 12345678
 
 **Customer:**
 Email:customer@gmail.com
+
 Password: 12345678
 
 ---
