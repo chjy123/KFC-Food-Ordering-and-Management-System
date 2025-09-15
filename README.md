@@ -39,6 +39,7 @@ php artisan key:generate
 # Run migrations (seed if you have seeders)
 php artisan migrate
 # php artisan migrate --seed   # optional
+php artisan storage:link
 ````
 
 ### 3) Useful Artisan Commands
