@@ -33,7 +33,7 @@ This web-based system replaces the manual flow with a digital experience:
 composer install
 
 # Copy env file, then set DB + Stripe keys (STRIPE_KEY / STRIPE_SECRET)
-cp .env.example .env
+copy .env.example .env
 php artisan key:generate
 
 # Run migrations (seed if you have seeders)
