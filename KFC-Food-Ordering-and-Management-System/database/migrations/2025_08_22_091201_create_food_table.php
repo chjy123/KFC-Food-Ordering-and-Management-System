@@ -12,7 +12,7 @@ return new class extends Migration
    public function up(): void
 {
     Schema::create('foods', function (Blueprint $table) {
-        $table->id(); // unsigned BIGINT 'id'
+        $table->id(); 
         $table->foreignId('category_id')->constrained()->cascadeOnDelete();
         $table->string('name');
         $table->text('description')->nullable();

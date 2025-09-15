@@ -16,7 +16,7 @@ return new class extends Migration
         $table->foreignId('order_id')->constrained()->cascadeOnDelete();
         $table->foreignId('food_id')->constrained('foods')->cascadeOnDelete();
         $table->unsignedInteger('quantity');
-        $table->decimal('unit_price', 8, 2); // snapshot of price when ordered
+        $table->decimal('unit_price', 8, 2); 
         $table->timestamps();
     });
 }

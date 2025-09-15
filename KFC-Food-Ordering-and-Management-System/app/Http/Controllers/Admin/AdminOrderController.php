@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Lim Jing Min
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -58,7 +58,7 @@ public function index(Request $request)
 
    public function updateStatus(Request $request, CommandBus $bus, Order $order)
 {
-    // keep your filters/pagination
+    
     $qParams = $request->only('q','status','page');
 
     try {

@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Lim Jing Min
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -13,7 +13,7 @@ class AdminReportController extends Controller
 {
     public function index(Request $request)
     {
-        // month=YYYY-MM (default: current month)
+       
         $monthStr = $request->query('month', now()->format('Y-m'));
 
         try {
@@ -26,7 +26,7 @@ class AdminReportController extends Controller
         $from = $month->copy()->startOfMonth();
         $to   = $month->copy()->endOfMonth();
 
-        // Daily orders + revenue
+        
         $daily = Order::query()
             ->selectRaw('DATE(created_at) as d, COUNT(*) as orders, COALESCE(SUM(total_amount),0) as revenue')
             ->whereBetween('created_at', [$from, $to])
@@ -40,12 +40,12 @@ class AdminReportController extends Controller
         $revenue = [];
         for ($d = $from->copy(); $d->lte($to); $d->addDay()) {
             $key = $d->toDateString();
-            $labels[]  = $d->format('j M');                    // 1 Aug, 2 Aug, ...
+            $labels[]  = $d->format('j M');                   
             $orders[]  = (int)   ($daily[$key]->orders  ?? 0);
             $revenue[] = (float) ($daily[$key]->revenue ?? 0);
         }
 
-        // Top items by quantity
+        
         $top = OrderDetail::query()
             ->select('food_id', DB::raw('SUM(quantity) as qty'))
             ->whereHas('order', fn($q) => $q->whereBetween('created_at', [$from, $to]))

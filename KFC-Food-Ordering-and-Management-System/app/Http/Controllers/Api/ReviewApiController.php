@@ -1,4 +1,5 @@
 <?php
+#author’s name： Lim Jing Min
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -28,7 +29,6 @@ class ReviewApiController extends Controller
 
     public function destroy(Review $review)
     {
-        Gate::authorize('isAdmin');
         $review->delete();
         return response()->json(['status' => 'deleted']);
     }

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-
+<!-- Author's Name: Lim Jing Min-->
 <head>
   <meta charset="utf-8" />
   <title>Admin • Menu Items</title>
@@ -28,7 +28,7 @@
       width:160px;aspect-ratio:4/3;background:#f3f4f6;border:1px solid var(--gray-200);
       border-radius:12px;display:grid;place-items:center;color:#9ca3af;font-size:12px;
     }
-    /* Basic :target modal */
+    
 .modal{
   position: fixed; inset: 0;
   display: grid; place-items: center;

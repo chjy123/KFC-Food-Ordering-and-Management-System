@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Author's Name: Lim Jing Min-->
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -39,7 +40,6 @@
     }
     .line.orders{ --c:#2563eb; }
     .line.revenue{ --c:#dc2626; }
-    /* dotted “points” to hint the series; controlled via --p1..--p7 heights */
     .line.orders::before,
     .line.revenue::before{
       content:""; position:absolute; inset:0; background:
@@ -75,7 +75,6 @@
       margin-top:8px; font-size:12px; text-align:center; line-height:1.2; color:var(--gray-700); min-height:2.4em;
     }
 
-    /* ===== Responsive tweaks for dashboard widgets ===== */
     @media (max-width: 1024px){ .grid.lg-2{grid-template-columns:1fr} .grid.lg-3{grid-template-columns:1fr} .col-span-2{grid-column:span 1} .kpis{grid-template-columns:repeat(2,1fr)} }
   </style>
 </head>
@@ -174,7 +173,7 @@
         </section>
 
        
-          <!-- Charts (static placeholders) -->
+          <!-- Charts -->
         <section class="grid lg-2">
            <article class="card">
               <div class="card-head">
@@ -305,7 +304,7 @@
     </main>
   </div>
 
-  <!-- Optional tiny JS for mobile sidebar toggle (no framework) -->
+  
   <script>
     const toggle = document.querySelector('.menu-toggle');
     const sidebar = document.querySelector('.sidebar');

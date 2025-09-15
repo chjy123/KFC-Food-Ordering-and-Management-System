@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Lim Jing Min
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -16,32 +16,32 @@ class AdminDashboardController extends Controller
     public function index()
     {
         $today     = now()->toDateString();
-        $weekStart = now()->copy()->startOfWeek(); // Monday 00:00:00
-        $weekEnd   = now()->copy()->endOfWeek();   // Sunday 23:59:59
+        $weekStart = now()->copy()->startOfWeek(); 
+        $weekEnd   = now()->copy()->endOfWeek();   
 
-        // ---- KPIs ----
+     
         $ordersToday  = Order::whereDate('created_at', $today)->count();
         $yesterdayOrders = Order::whereDate('created_at', now()->subDay())->count();
 
 
 
-        // Active orders today (you only have Preparing as "active")
+        
         $activeOrders = Order::whereDate('created_at', $today)
             ->where('status', Order::PREPARING)
             ->count();
 
-        // Preparing orders today
+        
         $preparingCount = Order::whereDate('created_at', $today)
             ->where('status', Order::PREPARING)
             ->count();
 
-        // Revenue today from payments table (amount exists per your migrations)
+        
         $revenueToday = Payment::whereDate('payment_date', $today)
             ->where('payment_status', 'Success')
             ->sum('amount');
         $receivedCount  = Order::where('status', 'Received')->count();
 
-        // Average prep time (minutes) for orders completed today: completed_at - preparing_at
+        
         $avgPrepTime = DB::table('orders')
             ->whereNotNull('preparing_at')
             ->whereNotNull('completed_at')
@@ -53,13 +53,13 @@ class AdminDashboardController extends Controller
         $avgOrderValue = $ordersToday ? round($revenueToday / max($ordersToday, 1), 2) : 0;
 
         
-      // ---- Trend (orders count & paid revenue by day of THIS week) ----
+  
 
 $tz = config('app.timezone', 'Asia/Kuala_Lumpur');
 $weekStart = now($tz)->startOfWeek(Carbon::MONDAY)->startOfDay();
 $weekEnd   = now($tz)->endOfWeek(Carbon::SUNDAY)->endOfDay();
 
-// Paid orders per day (based on payment_date)
+
 $rows = \App\Models\Order::join('payments', 'payments.order_id', '=', 'orders.id')
     ->where('payments.payment_status', 'Success')
     ->whereBetween('payments.payment_date', [$weekStart, $weekEnd])
@@ -71,12 +71,12 @@ $rows = \App\Models\Order::join('payments', 'payments.order_id', '=', 'orders.id
     ->get()
     ->keyBy('day');
 
-// Build 7 Mon–Sun buckets
+
 $labels = $ordersSeries = $revenueSeries = [];
 for ($i = 0; $i < 7; $i++) {
     $d = $weekStart->copy()->addDays($i);
     $key = $d->toDateString();
-    $labels[] = $d->isoFormat('ddd D/M');  // e.g. Tue 26/8
+    $labels[] = $d->isoFormat('ddd D/M');  
     $row = $rows->get($key);
     $ordersSeries[]  = $row ? (int) $row->orders : 0;
     $revenueSeries[] = $row ? (float) $row->revenue : 0.0;
@@ -89,7 +89,7 @@ $trend = [
 ];
 
 
-        // ---- Top items (last 7 days) ----
+        
         $topItems = OrderDetail::join('orders', 'orders.id', '=', 'order_details.order_id')
             ->join('foods', 'foods.id', '=', 'order_details.food_id')
             ->where('orders.created_at', '>=', Carbon::now()->subDays(7))
@@ -99,14 +99,14 @@ $trend = [
             ->limit(5)
             ->get();
 
-        // ---- Recent orders ----
+       
         $recentOrders = Order::with('user')
         ->withSum('orderDetails', 'quantity')
         ->latest('created_at')
         ->limit(10)
         ->get(['id','user_id','status','total_amount','created_at']);
 
-        // ---- Latest reviews ----
+        
         $latestReviews = Review::with('user', 'food')
             ->latest('created_at')
             ->limit(5)

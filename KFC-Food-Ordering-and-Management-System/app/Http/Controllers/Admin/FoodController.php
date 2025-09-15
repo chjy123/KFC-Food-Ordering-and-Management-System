@@ -1,5 +1,5 @@
 <?php
-
+#author’s name： Lim Jing Min
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -23,7 +23,7 @@ class FoodController extends Controller
             'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Store file first; keep relative path like your current code (e.g. 'foods/abc.jpg')
+        
         $imagePath = $request->file('image')
             ? $request->file('image')->store('foods', 'public')
             : null;
@@ -33,7 +33,7 @@ class FoodController extends Controller
             name:        $data['name'],
             description: $data['description'] ?? null,
             price:       (float) $data['price'],
-            availability:true,                 // your current default
+            availability:true,                 
             imagePath:   $imagePath,
             actorUserId: Auth::id() ?? 0
         ));
@@ -63,8 +63,8 @@ class FoodController extends Controller
             name:         $data['name'],
             description:  $data['description'] ?? null,
             price:        (float) $data['price'],
-            availability: null,               // not editing availability here
-            newImagePath: $newImagePath,      // handler will delete old and replace
+            availability: null,               
+            newImagePath: $newImagePath,      
             actorUserId:  Auth::id() ?? 0
         ));
 
@@ -75,7 +75,7 @@ class FoodController extends Controller
 
     public function destroy(CommandBus $bus, Food $food)
     {
-        $categoryId = $food->category_id; // for redirect after delete
+        $categoryId = $food->category_id; 
 
         $bus->dispatch(new DeleteFoodCommand(
             foodId: $food->id,

@@ -1,6 +1,6 @@
 <?php
 namespace App\Http\Resources;
-
+#author’s name： Lim Jing Min
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
